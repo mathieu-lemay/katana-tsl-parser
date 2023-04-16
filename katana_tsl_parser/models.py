@@ -52,7 +52,7 @@ class AmpType(Enum):
     Custom = 0x19
 
 
-class DrivePedalType(Enum):
+class BoostPedalType(Enum):
     MidBoost = 0x00
     CleanBoost = 0x01
     TrebleBoost = 0x02
@@ -76,6 +76,40 @@ class DrivePedalType(Enum):
     HM2 = 0x15
     MetalCore = 0x16
     CentaOD = 0x17
+
+
+class ModFxPedalType(Enum):
+    TWah = 0x00
+    AutoWah = 0x01
+    PedalWah = 0x02
+    Compressor = 0x03
+    Limiter = 0x04
+    GraphicEq = 0x06
+    ParametricEq = 0x07
+    GuitarSim = 0x09
+    SlowGear = 0x0A
+    WaveSynth = 0x0C
+    Octave = 0x0E
+    PitchShifter = 0x0F
+    Harmonist = 0x10
+    AcProcessor = 0x12
+    Phaser = 0x13
+    Flanger = 0x14
+    Tremolo = 0x15
+    Rotary = 0x16
+    UniV = 0x17
+    Slicer = 0x19
+    Vibrato = 0x1A
+    RingMod = 0x1B
+    Humanizer = 0x1C
+    Chorus = 0x1D
+    AcGuitarSim = 0x1F
+    Phaser90E = 0x23
+    Flanger117E = 0x24
+    Wah95E = 0x25
+    DelayChorus30 = 0x26
+    HeavyOctave = 0x27
+    PedalBend = 0x28
 
 
 class Light(Enum):
@@ -173,15 +207,15 @@ class HighCutFreq(Enum):
 
 
 class Patch0Model(TslBaseModel):
-    drive_pedal_on: bool
-    drive_pedal_type: DrivePedalType
-    drive_pedal_drive: int
-    drive_pedal_bottom: int
-    drive_pedal_tone: int
-    drive_pedal_solo_on: bool
-    drive_pedal_solo_level: int
-    drive_pedal_direct_mix: int
-    drive_pedal_level: int
+    boost_pedal_on: bool
+    boost_pedal_type: BoostPedalType
+    boost_pedal_drive: int
+    boost_pedal_bottom: int
+    boost_pedal_tone: int
+    boost_pedal_solo_on: bool
+    boost_pedal_solo_level: int
+    boost_pedal_direct_mix: int
+    boost_pedal_level: int
 
     amp_type: AmpType
     amp_gain: int
@@ -199,15 +233,15 @@ class Patch0Model(TslBaseModel):
             raise ValueError("must contain exactly 72 items")
 
         res = {
-            "drive_pedal_on": i(values[0]) > 0,
-            "drive_pedal_type": DrivePedalType(i(values[1])),
-            "drive_pedal_drive": i(values[2]),
-            "drive_pedal_bottom": i(values[3]) - 50,
-            "drive_pedal_tone": i(values[4]) - 50,
-            "drive_pedal_solo_on": i(values[5]) > 0,
-            "drive_pedal_solo_level": i(values[6]),
-            "drive_pedal_level": i(values[7]),
-            "drive_pedal_direct_mix": i(values[8]),
+            "boost_pedal_on": i(values[0]) > 0,
+            "boost_pedal_type": BoostPedalType(i(values[1])),
+            "boost_pedal_drive": i(values[2]),
+            "boost_pedal_bottom": i(values[3]) - 50,
+            "boost_pedal_tone": i(values[4]) - 50,
+            "boost_pedal_solo_on": i(values[5]) > 0,
+            "boost_pedal_solo_level": i(values[6]),
+            "boost_pedal_level": i(values[7]),
+            "boost_pedal_direct_mix": i(values[8]),
             # TODO: 9 -> 16
             "amp_type": AmpType(i(values[17])),
             "amp_gain": i(values[18]),
@@ -266,17 +300,25 @@ class Patch1Model(TslBaseModel):
                 case x, y:
                     raise ValueError(f"Invalid values for contour: ({x}, {y})")
 
-            res['contour'] = contour
+            res["contour"] = contour
 
         return res
 
 
 class Patch2Model(TslBaseModel):
-    drive_pedal_green: DrivePedalType
-    drive_pedal_red: DrivePedalType
-    drive_pedal_yellow: DrivePedalType
+    boost_pedal_green: BoostPedalType
+    boost_pedal_red: BoostPedalType
+    boost_pedal_yellow: BoostPedalType
+    mod_pedal_green: ModFxPedalType
+    mod_pedal_red: ModFxPedalType
+    mod_pedal_yellow: ModFxPedalType
+    fx_pedal_green: ModFxPedalType
+    fx_pedal_red: ModFxPedalType
+    fx_pedal_yellow: ModFxPedalType
 
-    booster_light: Light
+    boost_pedal_light: Light
+    mod_pedal_light: Light
+    fx_pedal_light: Light
 
     cab_resonance: CabResonance
 
@@ -288,10 +330,18 @@ class Patch2Model(TslBaseModel):
             raise ValueError("must contain exactly 36 items")
 
         res = {
-            "drive_pedal_green": DrivePedalType(i(values[4])),
-            "drive_pedal_red": DrivePedalType(i(values[5])),
-            "drive_pedal_yellow": DrivePedalType(i(values[6])),
-            "booster_light": Light(i(values[25])),
+            "boost_pedal_green": BoostPedalType(i(values[4])),
+            "boost_pedal_red": BoostPedalType(i(values[5])),
+            "boost_pedal_yellow": BoostPedalType(i(values[6])),
+            "mod_pedal_green": ModFxPedalType(i(values[7])),
+            "mod_pedal_red": ModFxPedalType(i(values[8])),
+            "mod_pedal_yellow": ModFxPedalType(i(values[9])),
+            "fx_pedal_green": ModFxPedalType(i(values[10])),
+            "fx_pedal_red": ModFxPedalType(i(values[11])),
+            "fx_pedal_yellow": ModFxPedalType(i(values[12])),
+            "boost_pedal_light": Light(i(values[25])),
+            "mod_pedal_light": Light(i(values[26])),
+            "fx_pedal_light": Light(i(values[27])),
             "cab_resonance": CabResonance(i(values[35])),
             "_raw": values,
         }
