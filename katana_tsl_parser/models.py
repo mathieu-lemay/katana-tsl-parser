@@ -1,7 +1,7 @@
 from enum import Enum, IntEnum
 from typing import Any
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Extra, Field, confloat, conint, validator
 
 JsonDict = dict[str, Any]
 
@@ -10,9 +10,22 @@ def i(n: str) -> int:
     return int(n, 16)
 
 
+def decode_delay_time(values: list[str]) -> int:
+    time = 0
+    for v in values:
+        time <<= 7
+        time += i(v)
+
+    return time
+
+
+Percent = conint(ge=0, le=100)
+
+
 class TslBaseModel(BaseModel):
     class Config:
         allow_population_by_field_name = True
+        extra = Extra.forbid
 
 
 class AmpType(Enum):
@@ -260,8 +273,6 @@ class Patch0Model(TslBaseModel):
     amp_eq_treble: int
     amp_eq_presence: int
 
-    _raw: list[str]
-
     @classmethod
     def decode(cls, values: list[str]) -> JsonDict:
         if len(values) != 72:
@@ -285,13 +296,22 @@ class Patch0Model(TslBaseModel):
             "amp_eq_treble": i(values[22]),
             "amp_eq_presence": i(values[23]),
             "amp_volume": i(values[24]),
-            "_raw": values,
         }
 
         return res
 
 
 class Patch1Model(TslBaseModel):
+    reverb_on: bool
+    reverb_type: ReverbType
+    reverb_time: confloat(ge=0.1, le=10.0, multiple_of=0.1)
+    reverb_pre_delay: conint(ge=0, le=500)
+    reverb_low_cut: LowCutFreq
+    reverb_high_cut: HighCutFreq
+    reverb_density: conint(ge=0, le=10)
+    reverb_effect_level: Percent
+    reverb_direct_mix: Percent
+    reverb_color: Percent
     noise_suppressor_on: bool
     noise_suppressor_threshold: int
     noise_suppressor_release: int
@@ -301,18 +321,25 @@ class Patch1Model(TslBaseModel):
 
     contour: int
 
-    _raw: list[str]
-
     @classmethod
     def decode(cls, values: list[str]) -> JsonDict:
         if len(values) not in (50, 91):
             raise ValueError("must contain exactly 50 or 91 items, not %d" % len(values))
 
         res = {
+            "reverb_on": i(values[0]) > 0,
+            "reverb_type": ReverbType(i(values[1])),
+            "reverb_time": (i(values[2]) + 1) / 10.0,
+            "reverb_pre_delay": decode_delay_time(values[3:5]),
+            "reverb_low_cut": LowCutFreq(i(values[5])),
+            "reverb_high_cut": HighCutFreq(i(values[6])),
+            "reverb_density": i(values[7]),
+            "reverb_effect_level": i(values[8]),
+            "reverb_direct_mix": i(values[9]),
+            "reverb_color": i(values[11]),
             "noise_suppressor_on": i(values[38]) > 0,
             "noise_suppressor_threshold": i(values[39]),
             "noise_suppressor_release": i(values[40]),
-            "_raw": values,
         }
 
         if len(values) == 91:
@@ -371,8 +398,6 @@ class Patch2Model(TslBaseModel):
 
     cab_resonance: CabResonance
 
-    _raw: list[str]
-
     @classmethod
     def decode(cls, values: list[str]) -> JsonDict:
         if len(values) != 36:
@@ -406,7 +431,6 @@ class Patch2Model(TslBaseModel):
             "delay_light": Light(i(values[28])),
             "reverb_light": Light(i(values[29])),
             "cab_resonance": CabResonance(i(values[35])),
-            "_raw": values,
         }
 
         return res
@@ -424,8 +448,6 @@ class PatchMk2v2Model(TslBaseModel):
     solo_eq_high_cut: HighCutFreq
     solo_eq_level: float
 
-    _raw: list[str]
-
     @classmethod
     def decode(cls, values: list[str]) -> JsonDict:
         if len(values) != 10:
@@ -442,7 +464,6 @@ class PatchMk2v2Model(TslBaseModel):
             "solo_eq_high_gain": (i(values[7]) - 24) * 0.5,
             "solo_eq_high_cut": HighCutFreq(i(values[8])),
             "solo_eq_level": (i(values[9]) - 24) * 0.5,
-            "_raw": values,
         }
 
         return res
@@ -473,7 +494,7 @@ class DelayModel(TslBaseModel):
         res = {
             "delay_on": i(values[0]) > 0,
             "delay_type": DelayType(i(values[1])),
-            "delay_time": cls._decode_delay_time(values[2:4]),
+            "delay_time": decode_delay_time(values[2:4]),
             "feedback": i(values[4]),
             "high_cut": HighCutFreq(i(values[5])),
             "effect_level": i(values[6]),
@@ -486,26 +507,14 @@ class DelayModel(TslBaseModel):
             "feedback_phase": Phase(i(values[23])),
             "delay_phase": Phase(i(values[24])),
             "mod_sw_on": i(values[25]) > 0,
-            "_raw": values,
         }
 
         return res
-
-    @classmethod
-    def _decode_delay_time(cls, values: list[str]) -> int:
-        time = 0
-        for v in values:
-            time <<= 7
-            time += i(v)
-
-        return time
 
 
 class ContourModel(TslBaseModel):
     contour_type: int
     freq_shift: int
-
-    _raw: list[str]
 
     @classmethod
     def decode(cls, values: list[str]) -> JsonDict:
@@ -515,13 +524,16 @@ class ContourModel(TslBaseModel):
         res = {
             "contour_type": i(values[0]) + 1,
             "freq_shift": i(values[1]) - 50,
-            "_raw": values,
         }
 
         return res
 
 
 class ParamSetModel(TslBaseModel):
+    class Config:
+        allow_population_by_field_name = True
+        extra = Extra.ignore
+
     name: str = Field(alias="UserPatch%PatchName")
     patch0: Patch0Model = Field(alias="UserPatch%Patch_0")
 
