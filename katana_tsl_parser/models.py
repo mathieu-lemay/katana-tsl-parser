@@ -1,7 +1,7 @@
 from enum import Enum, IntEnum
 from typing import Any
 
-from pydantic import BaseModel, Extra, Field, confloat, conint, validator
+from pydantic import BaseModel, ConstrainedInt, Extra, Field, validator
 
 JsonDict = dict[str, Any]
 
@@ -19,7 +19,9 @@ def decode_delay_time(values: list[str]) -> int:
     return time
 
 
-Percent = conint(ge=0, le=100)
+class Percent(ConstrainedInt):
+    ge = 0
+    le = 100
 
 
 class TslBaseModel(BaseModel):
@@ -199,10 +201,10 @@ class LowCutFreq(Enum):
 
 
 class MidFreq(IntEnum):
-    def __new__(cls, value, description=""):
+    def __new__(cls, value: int, description: str = "") -> "MidFreq":
         obj = int.__new__(cls, value)
         obj._value_ = value
-        obj.description = description
+        obj.description = description  # type: ignore[attr-defined]
 
         return obj
 
@@ -304,11 +306,11 @@ class Patch0Model(TslBaseModel):
 class Patch1Model(TslBaseModel):
     reverb_on: bool
     reverb_type: ReverbType
-    reverb_time: confloat(ge=0.1, le=10.0, multiple_of=0.1)
-    reverb_pre_delay: conint(ge=0, le=500)
+    reverb_time: float = Field(ge=0.1, le=10.0, multiple_of=0.1)
+    reverb_pre_delay: int = Field(ge=0, le=500)
     reverb_low_cut: LowCutFreq
     reverb_high_cut: HighCutFreq
-    reverb_density: conint(ge=0, le=10)
+    reverb_density: int = Field(ge=0, le=10)
     reverb_effect_level: Percent
     reverb_direct_mix: Percent
     reverb_color: Percent
@@ -559,7 +561,7 @@ class ParamSetModel(TslBaseModel):
     # eq2: list[str] | None = Field(alias="UserPatch%Eq(2)")
 
     @validator("name", pre=True)
-    def validate_name(cls, v: str | list[str]) -> str:  # noqa: N805
+    def validate_name(cls, v: str | list[str]) -> str:
         if isinstance(v, list):
             v = "".join([chr(int(i, 16)) for i in v])
 
@@ -569,39 +571,39 @@ class ParamSetModel(TslBaseModel):
         return v.rstrip()
 
     @validator("delay1", pre=True)
-    def parse_delay1(cls, v: list[str]) -> JsonDict:  # noqa: N805
+    def parse_delay1(cls, v: list[str]) -> JsonDict:
         return DelayModel.decode(v)
 
     @validator("delay2", pre=True)
-    def parse_delay2(cls, v: list[str]) -> JsonDict:  # noqa: N805
+    def parse_delay2(cls, v: list[str]) -> JsonDict:
         return DelayModel.decode(v)
 
     @validator("patch0", pre=True)
-    def parse_patch0(cls, v: list[str]) -> JsonDict:  # noqa: N805
+    def parse_patch0(cls, v: list[str]) -> JsonDict:
         return Patch0Model.decode(v)
 
     @validator("patch1", pre=True)
-    def parse_patch1(cls, v: list[str]) -> JsonDict:  # noqa: N805
+    def parse_patch1(cls, v: list[str]) -> JsonDict:
         return Patch1Model.decode(v)
 
     @validator("patch2", pre=True)
-    def parse_patch2(cls, v: list[str]) -> JsonDict:  # noqa: N805
+    def parse_patch2(cls, v: list[str]) -> JsonDict:
         return Patch2Model.decode(v)
 
     @validator("patch_mk2v2", pre=True)
-    def parse_patch_mk2v2(cls, v: list[str]) -> JsonDict:  # noqa: N805
+    def parse_patch_mk2v2(cls, v: list[str]) -> JsonDict:
         return PatchMk2v2Model.decode(v)
 
     @validator("contour1", pre=True)
-    def parse_contour1(cls, v: list[str]) -> JsonDict:  # noqa: N805
+    def parse_contour1(cls, v: list[str]) -> JsonDict:
         return ContourModel.decode(v)
 
     @validator("contour2", pre=True)
-    def parse_contour2(cls, v: list[str]) -> JsonDict:  # noqa: N805
+    def parse_contour2(cls, v: list[str]) -> JsonDict:
         return ContourModel.decode(v)
 
     @validator("contour3", pre=True)
-    def parse_contour3(cls, v: list[str]) -> JsonDict:  # noqa: N805
+    def parse_contour3(cls, v: list[str]) -> JsonDict:
         return ContourModel.decode(v)
 
 
@@ -623,7 +625,7 @@ class TslModel(TslBaseModel):
     data: list[list[PatchModel]]
 
     @validator("device")
-    def validate_device(cls, v: str) -> str:  # noqa: N805
+    def validate_device(cls, v: str) -> str:
         if v != "KATANA MkII":
             raise ValueError(f"Unsupported device: {v}")
 
