@@ -52,7 +52,7 @@ class AmpType(Enum):
     Custom = 0x19
 
 
-class BoostPedalType(Enum):
+class BoostType(Enum):
     MidBoost = 0x00
     CleanBoost = 0x01
     TrebleBoost = 0x02
@@ -78,7 +78,7 @@ class BoostPedalType(Enum):
     CentaOD = 0x17
 
 
-class ModFxPedalType(Enum):
+class ModFxType(Enum):
     TWah = 0x00
     AutoWah = 0x01
     PedalWah = 0x02
@@ -110,6 +110,41 @@ class ModFxPedalType(Enum):
     DelayChorus30 = 0x26
     HeavyOctave = 0x27
     PedalBend = 0x28
+
+
+class DelayType(Enum):
+    Digital = 0x00
+    Pan = 0x01
+    Stereo = 0x02
+    Reverse = 0x06
+    Analog = 0x07
+    TapeEcho = 0x08
+    Modulate = 0x09
+    SDE3000 = 0x0A
+
+
+class ReverbType(IntEnum):
+    Room = 0x01
+    Hall = 0x03
+    Plate = 0x04
+    Spring = 0x05
+    Modulate = 0x06
+
+
+class ReverbMode(IntEnum):
+    Delay = 0x00
+    DelayReverb = 0x01
+    Reverb = 0x02
+
+
+class Range(IntEnum):
+    KHz8 = 0x00
+    KHz17 = 0x01
+
+
+class Phase(IntEnum):
+    Normal = 0x00
+    Inverse = 0x01
 
 
 class Light(Enum):
@@ -207,15 +242,15 @@ class HighCutFreq(Enum):
 
 
 class Patch0Model(TslBaseModel):
-    boost_pedal_on: bool
-    boost_pedal_type: BoostPedalType
-    boost_pedal_drive: int
-    boost_pedal_bottom: int
-    boost_pedal_tone: int
-    boost_pedal_solo_on: bool
-    boost_pedal_solo_level: int
-    boost_pedal_direct_mix: int
-    boost_pedal_level: int
+    boost_on: bool
+    boost_type: BoostType
+    boost_drive: int
+    boost_bottom: int
+    boost_tone: int
+    boost_solo_on: bool
+    boost_solo_level: int
+    boost_direct_mix: int
+    boost_level: int
 
     amp_type: AmpType
     amp_gain: int
@@ -233,15 +268,15 @@ class Patch0Model(TslBaseModel):
             raise ValueError("must contain exactly 72 items")
 
         res = {
-            "boost_pedal_on": i(values[0]) > 0,
-            "boost_pedal_type": BoostPedalType(i(values[1])),
-            "boost_pedal_drive": i(values[2]),
-            "boost_pedal_bottom": i(values[3]) - 50,
-            "boost_pedal_tone": i(values[4]) - 50,
-            "boost_pedal_solo_on": i(values[5]) > 0,
-            "boost_pedal_solo_level": i(values[6]),
-            "boost_pedal_level": i(values[7]),
-            "boost_pedal_direct_mix": i(values[8]),
+            "boost_on": i(values[0]) > 0,
+            "boost_type": BoostType(i(values[1])),
+            "boost_drive": i(values[2]),
+            "boost_bottom": i(values[3]) - 50,
+            "boost_tone": i(values[4]) - 50,
+            "boost_solo_on": i(values[5]) > 0,
+            "boost_solo_level": i(values[6]),
+            "boost_level": i(values[7]),
+            "boost_direct_mix": i(values[8]),
             # TODO: 9 -> 16
             "amp_type": AmpType(i(values[17])),
             "amp_gain": i(values[18]),
@@ -306,19 +341,33 @@ class Patch1Model(TslBaseModel):
 
 
 class Patch2Model(TslBaseModel):
-    boost_pedal_green: BoostPedalType
-    boost_pedal_red: BoostPedalType
-    boost_pedal_yellow: BoostPedalType
-    mod_pedal_green: ModFxPedalType
-    mod_pedal_red: ModFxPedalType
-    mod_pedal_yellow: ModFxPedalType
-    fx_pedal_green: ModFxPedalType
-    fx_pedal_red: ModFxPedalType
-    fx_pedal_yellow: ModFxPedalType
+    boost_green: BoostType
+    boost_red: BoostType
+    boost_yellow: BoostType
+    mod_green: ModFxType
+    mod_red: ModFxType
+    mod_yellow: ModFxType
+    fx_green: ModFxType
+    fx_red: ModFxType
+    fx_yellow: ModFxType
+    delay_green: DelayType
+    delay_red: DelayType
+    delay_yellow: DelayType
+    reverb_green: ReverbType
+    reverb_red: ReverbType
+    reverb_yellow: ReverbType
+    delay2_green: DelayType
+    delay2_red: DelayType
+    delay2_yellow: DelayType
+    reverb_green_mode: ReverbMode
+    reverb_red_mode: ReverbMode
+    reverb_yellow_mode: ReverbMode
 
-    boost_pedal_light: Light
-    mod_pedal_light: Light
-    fx_pedal_light: Light
+    boost_light: Light
+    mod_light: Light
+    fx_light: Light
+    delay_light: Light
+    reverb_light: Light
 
     cab_resonance: CabResonance
 
@@ -330,18 +379,32 @@ class Patch2Model(TslBaseModel):
             raise ValueError("must contain exactly 36 items")
 
         res = {
-            "boost_pedal_green": BoostPedalType(i(values[4])),
-            "boost_pedal_red": BoostPedalType(i(values[5])),
-            "boost_pedal_yellow": BoostPedalType(i(values[6])),
-            "mod_pedal_green": ModFxPedalType(i(values[7])),
-            "mod_pedal_red": ModFxPedalType(i(values[8])),
-            "mod_pedal_yellow": ModFxPedalType(i(values[9])),
-            "fx_pedal_green": ModFxPedalType(i(values[10])),
-            "fx_pedal_red": ModFxPedalType(i(values[11])),
-            "fx_pedal_yellow": ModFxPedalType(i(values[12])),
-            "boost_pedal_light": Light(i(values[25])),
-            "mod_pedal_light": Light(i(values[26])),
-            "fx_pedal_light": Light(i(values[27])),
+            "boost_green": BoostType(i(values[4])),
+            "boost_red": BoostType(i(values[5])),
+            "boost_yellow": BoostType(i(values[6])),
+            "mod_green": ModFxType(i(values[7])),
+            "mod_red": ModFxType(i(values[8])),
+            "mod_yellow": ModFxType(i(values[9])),
+            "fx_green": ModFxType(i(values[10])),
+            "fx_red": ModFxType(i(values[11])),
+            "fx_yellow": ModFxType(i(values[12])),
+            "delay_green": DelayType(i(values[13])),
+            "delay_red": DelayType(i(values[14])),
+            "delay_yellow": DelayType(i(values[15])),
+            "reverb_green": ReverbType(i(values[16])),
+            "reverb_red": ReverbType(i(values[17])),
+            "reverb_yellow": ReverbType(i(values[18])),
+            "delay2_green": DelayType(i(values[19])),
+            "delay2_red": DelayType(i(values[20])),
+            "delay2_yellow": DelayType(i(values[21])),
+            "reverb_green_mode": ReverbMode(i(values[22])),
+            "reverb_red_mode": ReverbMode(i(values[23])),
+            "reverb_yellow_mode": ReverbMode(i(values[24])),
+            "boost_light": Light(i(values[25])),
+            "mod_light": Light(i(values[26])),
+            "fx_light": Light(i(values[27])),
+            "delay_light": Light(i(values[28])),
+            "reverb_light": Light(i(values[29])),
             "cab_resonance": CabResonance(i(values[35])),
             "_raw": values,
         }
@@ -385,6 +448,59 @@ class PatchMk2v2Model(TslBaseModel):
         return res
 
 
+class DelayModel(TslBaseModel):
+    delay_on: bool
+    delay_type: DelayType
+    delay_time: int
+    feedback: int
+    high_cut: HighCutFreq
+    effect_level: int
+    direct_mix: int
+    tap_time: int
+    mod_rate: int
+    mod_depth: int
+    filter_on: bool
+    range_: Range
+    feedback_phase: Phase
+    delay_phase: Phase
+    mod_sw_on: bool
+
+    @classmethod
+    def decode(cls, values: list[str]) -> JsonDict:
+        if len(values) != 26:
+            raise ValueError(f"must contain exactly 26 items, not {len(values)}")
+
+        res = {
+            "delay_on": i(values[0]) > 0,
+            "delay_type": DelayType(i(values[1])),
+            "delay_time": cls._decode_delay_time(values[2:4]),
+            "feedback": i(values[4]),
+            "high_cut": HighCutFreq(i(values[5])),
+            "effect_level": i(values[6]),
+            "direct_mix": i(values[7]),
+            "tap_time": i(values[8]),
+            "mod_rate": i(values[19]),
+            "mod_depth": i(values[20]),
+            "range_": Range(i(values[21])),
+            "filter_on": i(values[22]) > 0,
+            "feedback_phase": Phase(i(values[23])),
+            "delay_phase": Phase(i(values[24])),
+            "mod_sw_on": i(values[25]) > 0,
+            "_raw": values,
+        }
+
+        return res
+
+    @classmethod
+    def _decode_delay_time(cls, values: list[str]) -> int:
+        time = 0
+        for v in values:
+            time <<= 7
+            time += i(v)
+
+        return time
+
+
 class ContourModel(TslBaseModel):
     contour_type: int
     freq_shift: int
@@ -411,8 +527,8 @@ class ParamSetModel(TslBaseModel):
 
     # fx1: list[str] = Field(alias="UserPatch%Fx(1)")
     # fx2: list[str] = Field(alias="UserPatch%Fx(2)")
-    # delay1: list[str] = Field(alias="UserPatch%Delay(1)")
-    # delay2: list[str] = Field(alias="UserPatch%Delay(2)")
+    delay1: DelayModel = Field(alias="UserPatch%Delay(1)")
+    delay2: DelayModel = Field(alias="UserPatch%Delay(2)")
     patch1: Patch1Model = Field(alias="UserPatch%Patch_1")
     patch2: Patch2Model = Field(alias="UserPatch%Patch_2")
     # status: list[str] = Field(alias="UserPatch%Status")
@@ -439,6 +555,14 @@ class ParamSetModel(TslBaseModel):
             raise ValueError("must be 16 chars or fewer")
 
         return v.rstrip()
+
+    @validator("delay1", pre=True)
+    def parse_delay1(cls, v: list[str]) -> JsonDict:  # noqa: N805
+        return DelayModel.decode(v)
+
+    @validator("delay2", pre=True)
+    def parse_delay2(cls, v: list[str]) -> JsonDict:  # noqa: N805
+        return DelayModel.decode(v)
 
     @validator("patch0", pre=True)
     def parse_patch0(cls, v: list[str]) -> JsonDict:  # noqa: N805

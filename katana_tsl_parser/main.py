@@ -1,11 +1,12 @@
 #! /usr/bin/env python
-import sys
 import json
+import sys
 from copy import deepcopy
 from pathlib import Path
+
 from devtools import debug
 
-from katana_tsl_parser.models import TslModel, AmpType
+from katana_tsl_parser.models import TslModel
 
 root = Path(__file__).parent.parent
 
@@ -13,27 +14,26 @@ if len(sys.argv) != 2:
     raise ValueError(f"Usage: {sys.argv[0]} tsl-file")
 
 
-def print_file_content(f):
+def print_file_content(f: str) -> None:
     tsl = TslModel.parse_file(f)
 
     for d in tsl.data:
         for _, p in enumerate(d):
-            # (root / f"{i:02}-{p.param_set.name}.json").write_text(p.json(indent=2))
-            print(f"Patch: {debug.format(p.param_set)}")
+            debug(p.param_set.delay2)
 
 
-def encode_name(name):
+def encode_name(name: str) -> list[str]:
     if len(name) > 16:
         raise ValueError("Name too long")
 
     return [f"{ord(c):02x}" for c in name] + ["20"] * (16 - len(name))
 
 
-def s(v):
+def s(v: int) -> str:
     return f"{v:02x}"
 
 
-def update_some_values(f):
+def update_some_values(f: str) -> None:
     tsl = json.loads(Path(f).read_text())
 
     default_patch = tsl["data"][0][0]
