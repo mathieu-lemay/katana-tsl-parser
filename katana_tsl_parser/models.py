@@ -1,13 +1,28 @@
 from enum import Enum, IntEnum
 from typing import Any
 
-from pydantic import BaseModel, ConstrainedInt, Extra, Field, validator
+from pydantic import (
+    BaseModel,
+    ConstrainedFloat,
+    ConstrainedInt,
+    Extra,
+    Field,
+    validator,
+)
 
 JsonDict = dict[str, Any]
 
 
 def i(n: str) -> int:
     return int(n, 16)
+
+
+def q(v: str) -> float:
+    return 2.0 ** (i(v) - 1)
+
+
+def eq(v: str) -> float:
+    return (i(v) * 0.5) - 12
 
 
 def decode_delay_time(values: list[str]) -> int:
@@ -22,6 +37,12 @@ def decode_delay_time(values: list[str]) -> int:
 class Percent(ConstrainedInt):
     ge = 0
     le = 100
+
+
+class EqBar(ConstrainedFloat):
+    ge = -12.0
+    le = 12.0
+    multiple_of = 0.5
 
 
 class TslBaseModel(BaseModel):
@@ -256,24 +277,90 @@ class HighCutFreq(Enum):
     Flat = 14
 
 
+class EqType(Enum):
+    Parametric = 0
+    Graphic10 = 1
+
+
+class EqModel(TslBaseModel):
+    eq_on: bool
+    eq_type: EqType
+    eq_low_cut: LowCutFreq
+    eq_low_gain: int = Field(ge=-20, le=20)
+    eq_low_mid_freq: MidFreq
+    eq_low_mid_q: float
+    eq_low_mid_gain: int = Field(ge=-20, le=20)
+    eq_high_mid_freq: MidFreq
+    eq_high_mid_q: float
+    eq_high_mid_gain: int = Field(ge=-20, le=20)
+    eq_high_gain: int = Field(ge=-20, le=20)
+    eq_high_cut: HighCutFreq
+    eq_level: int = Field(ge=-20, le=20)
+    eq_bar_31: EqBar
+    eq_bar_62: EqBar
+    eq_bar_125: EqBar
+    eq_bar_250: EqBar
+    eq_bar_500: EqBar
+    eq_bar_1000: EqBar
+    eq_bar_2000: EqBar
+    eq_bar_4000: EqBar
+    eq_bar_8000: EqBar
+    eq_bar_16000: EqBar
+    eq_bar_level: EqBar
+
+    @classmethod
+    def decode(cls, values: list[str]) -> JsonDict:
+        if len(values) != 24:
+            raise ValueError("must contain exactly 24 items")
+
+        return {
+            "eq_on": i(values[0]) > 0,
+            "eq_type": EqType(i(values[1])),
+            "eq_low_cut": LowCutFreq(i(values[2])),
+            "eq_low_gain": i(values[3]) - 20,
+            "eq_low_mid_freq": MidFreq(i(values[4])),
+            "eq_low_mid_q": q(values[5]),
+            "eq_low_mid_gain": i(values[6]) - 20,
+            "eq_high_mid_freq": MidFreq(i(values[7])),
+            "eq_high_mid_q": q(values[8]),
+            "eq_high_mid_gain": i(values[9]) - 20,
+            "eq_high_gain": i(values[10]) - 20,
+            "eq_high_cut": HighCutFreq(i(values[11])),
+            "eq_level": i(values[12]) - 20,
+            "eq_bar_31": eq(values[13]),
+            "eq_bar_62": eq(values[14]),
+            "eq_bar_125": eq(values[15]),
+            "eq_bar_250": eq(values[16]),
+            "eq_bar_500": eq(values[17]),
+            "eq_bar_1000": eq(values[18]),
+            "eq_bar_2000": eq(values[19]),
+            "eq_bar_4000": eq(values[20]),
+            "eq_bar_8000": eq(values[21]),
+            "eq_bar_16000": eq(values[22]),
+            "eq_bar_level": eq(values[23]),
+        }
+
+
 class Patch0Model(TslBaseModel):
     boost_on: bool
     boost_type: BoostType
-    boost_drive: int
-    boost_bottom: int
-    boost_tone: int
+    boost_drive: Percent
+    boost_bottom: int = Field(ge=-50, le=50)
+    boost_tone: int = Field(ge=-50, le=50)
     boost_solo_on: bool
-    boost_solo_level: int
-    boost_direct_mix: int
-    boost_level: int
+    boost_solo_level: Percent
+    boost_direct_mix: Percent
+    boost_level: Percent
 
     amp_type: AmpType
-    amp_gain: int
-    amp_volume: int
-    amp_eq_bass: int
-    amp_eq_middle: int
-    amp_eq_treble: int
+    amp_gain: Percent
+    amp_volume: Percent
+    amp_eq_bass: Percent
+    amp_eq_middle: Percent
+    amp_eq_treble: Percent
     amp_eq_presence: int
+
+    eq: EqModel
 
     @classmethod
     def decode(cls, values: list[str]) -> JsonDict:
@@ -298,6 +385,8 @@ class Patch0Model(TslBaseModel):
             "amp_eq_treble": i(values[22]),
             "amp_eq_presence": i(values[23]),
             "amp_volume": i(values[24]),
+            # TODO: 25 -> 47
+            "eq": EqModel.decode(values[48:]),
         }
 
         return res
@@ -461,7 +550,7 @@ class PatchMk2v2Model(TslBaseModel):
             "solo_eq_low_cut": LowCutFreq(i(values[2])),
             "solo_eq_low_gain": (i(values[3]) - 24) * 0.5,
             "solo_eq_mid_freq": MidFreq(i(values[4])),
-            "solo_eq_mid_q": 2 ** (i(values[5]) - 1),
+            "solo_eq_mid_q": q(values[5]),
             "solo_eq_mid_gain": (i(values[6]) - 24) * 0.5,
             "solo_eq_high_gain": (i(values[7]) - 24) * 0.5,
             "solo_eq_high_cut": HighCutFreq(i(values[8])),
@@ -558,7 +647,7 @@ class ParamSetModel(TslBaseModel):
     contour1: ContourModel | None = Field(alias="UserPatch%Contour(1)")
     contour2: ContourModel | None = Field(alias="UserPatch%Contour(2)")
     contour3: ContourModel | None = Field(alias="UserPatch%Contour(3)")
-    # eq2: list[str] | None = Field(alias="UserPatch%Eq(2)")
+    eq2: EqModel = Field(alias="UserPatch%Eq(2)")
 
     @validator("name", pre=True)
     def validate_name(cls, v: str | list[str]) -> str:
@@ -605,6 +694,10 @@ class ParamSetModel(TslBaseModel):
     @validator("contour3", pre=True)
     def parse_contour3(cls, v: list[str]) -> JsonDict:
         return ContourModel.decode(v)
+
+    @validator("eq2", pre=True)
+    def parse_eq2(cls, v: list[str]) -> JsonDict:
+        return EqModel.decode(v)
 
 
 class MemoModel(TslBaseModel):

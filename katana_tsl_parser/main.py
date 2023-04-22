@@ -19,7 +19,7 @@ def print_file_content(f: str) -> None:
 
     for d in tsl.data:
         for _, p in enumerate(d):
-            debug(p.param_set.patch1)
+            debug(p.param_set.eq2)
 
 
 def encode_name(name: str) -> list[str]:
