@@ -1,5 +1,5 @@
 from enum import Enum, IntEnum
-from typing import Any
+from typing import Any, Callable, Generator
 
 from pydantic import (
     BaseModel,
@@ -21,8 +21,16 @@ def q(v: str) -> float:
     return 2.0 ** (i(v) - 1)
 
 
-def eq(v: str) -> float:
-    return (i(v) * 0.5) - 12
+def gain_12db(v: str) -> float:
+    return (i(v) - 24) * 0.5
+
+
+def gain_20db(v: str) -> int:
+    return i(v) - 20
+
+
+def pitch(v: str) -> int:
+    return i(v) - 24
 
 
 def decode_delay_time(values: list[str]) -> int:
@@ -39,16 +47,64 @@ class Percent(ConstrainedInt):
     le = 100
 
 
-class EqBar(ConstrainedFloat):
+class ToggleablePercent(ConstrainedInt):
+    ge = 0
+    le = 101
+
+    def __repr__(self) -> str:
+        if self == 0:
+            return "Off"
+
+        return f"On<{self - 1}>"
+
+
+class Gain12dB(ConstrainedFloat):
     ge = -12.0
     le = 12.0
     multiple_of = 0.5
+
+
+class Gain20dB(ConstrainedInt):
+    ge = -20
+    le = 20
+
+
+class Pitch(ConstrainedInt):
+    ge = -24
+    le = 24
+
+
+class ContourChoice(Enum):
+    Off = 0
+    Contour1 = 1
+    Contour2 = 2
+    Contour3 = 3
+
+
+class Q(float):
+    @classmethod
+    def __get_validators__(cls) -> Generator[Callable[[float], float], None, None]:
+        yield cls.validate
+
+    @classmethod
+    def validate(cls, v: float) -> float:
+        if not isinstance(v, float):
+            raise TypeError("float required")
+
+        if v not in (0.5, 1, 2, 4, 8, 16):
+            raise ValueError("invalid Q value")
+
+        return v
 
 
 class TslBaseModel(BaseModel):
     class Config:
         allow_population_by_field_name = True
         extra = Extra.forbid
+
+    @classmethod
+    def _get_fields(cls, by_alias: bool = False) -> set[str]:
+        return set(cls.schema(by_alias=by_alias)["properties"].keys())
 
 
 class AmpType(Enum):
@@ -277,36 +333,250 @@ class HighCutFreq(Enum):
     Flat = 14
 
 
+class CrossoverFreq(Enum):
+    Hz100 = 0
+    Hz125 = 1
+    Hz160 = 2
+    Hz200 = 3
+    Hz250 = 4
+    Hz315 = 5
+    Hz400 = 6
+    Hz500 = 7
+    Hz630 = 8
+    Hz800 = 9
+    Hz1000 = 10
+    Hz1250 = 11
+    Hz1600 = 12
+    Hz2000 = 13
+    Hz2500 = 14
+    Hz3150 = 15
+    Hz4000 = 16
+
+
 class EqType(Enum):
     Parametric = 0
     Graphic10 = 1
 
 
+class PhaserType(Enum):
+    Stage4 = 0
+    Stage8 = 1
+    Stage12 = 2
+    BiPhase = 3
+
+
+class RingModMode(Enum):
+    Normal = 0
+    Intelligent = 1
+
+
+class CompressorType(Enum):
+    BossComp = 0
+    HiBand = 1
+    Light = 2
+    DComp = 3
+    Orange = 4
+    Fat = 5
+    Mild = 6
+
+
+class LimiterType(Enum):
+    BossLimiter = 0
+    Rack160D = 1
+    VintageRackU = 2
+
+
+class Ratio(IntEnum):
+    def __new__(cls, value: int, description: str = "") -> "Ratio":
+        obj = int.__new__(cls, value)
+        obj._value_ = value
+        obj.description = description  # type: ignore[attr-defined]
+
+        return obj
+
+    def __repr__(self) -> str:
+        return self.description  # type: ignore[attr-defined,no-any-return]
+
+    R1 = 0, "1:1"
+    R1_2 = 1, "1.2:1"
+    R1_4 = 2, "1.4:1"
+    R1_6 = 3, "1.6:1"
+    R1_8 = 4, "1.8:1"
+    R2 = 5, "2:1"
+    R2_3 = 6, "2.3:1"
+    R2_6 = 7, "2.6:1"
+    R3 = 8, "3:1"
+    R3_5 = 9, "3.5:1"
+    R4 = 10, "4:1"
+    R5 = 11, "5:1"
+    R6 = 12, "6:1"
+    R8 = 13, "8:1"
+    R10 = 14, "10:1"
+    R12 = 15, "12:1"
+    R20 = 16, "20:1"
+    RInf = 17, "Inf:1"
+
+
+class WahMode(Enum):
+    LPF = 0
+    BPF = 1
+
+
+class Polarity(Enum):
+    Down = 0
+    Up = 1
+
+
+class PedalWahType(Enum):
+    Cry = 0
+    Vo = 1
+    Fat = 2
+    Light = 3
+    SevenString = 4
+    Reso = 5
+
+
+class GuitarSimType(Enum):
+    SingleToHumbucker = 0
+    HumbuckerToSingle = 1
+    HumbuckerToHalfTone = 2
+    SingleToHollow = 3
+    HumbuckerToHollow = 4
+    SingleToAcoustic = 5
+    HumbuckerToAcoustic = 6
+    PiezoToAcoustic = 7
+
+
+class AcProcessorType(Enum):
+    Small = 0
+    Medium = 1
+    Bright = 2
+    Power = 3
+
+
+class WaveSynthType(Enum):
+    Saw = 0
+    Square = 1
+
+
+class VoiceType(Enum):
+    Voice1 = 0
+    Voice2 = 1
+
+
+class PitchShifterMode(Enum):
+    Fast = 0
+    Medium = 1
+    Slow = 2
+    Mono = 3
+
+
+class Harmony(IntEnum):
+    def __new__(cls, value: int, description: str = "") -> "Harmony":
+        obj = int.__new__(cls, value)
+        obj._value_ = value
+        obj.description = description  # type: ignore[attr-defined]
+
+        return obj
+
+    def __repr__(self) -> str:
+        return self.description  # type: ignore[attr-defined,no-any-return]
+
+    HMin2Oct = 0, "-2oct"
+    HMin14th = 1, "-14th"
+    HMin13th = 2, "-13th"
+    HMin12th = 3, "-12th"
+    HMin11th = 4, "-11th"
+    HMin10th = 5, "-10th"
+    HMin9th = 6, "-9th"
+    HMin1Oct = 7, "-1oct"
+    HMin7th = 8, "-7th"
+    HMin6th = 9, "-6th"
+    HMin5th = 10, "-5th"
+    HMin4th = 11, "-4th"
+    HMin3rd = 12, "-3rd"
+    HMin2nd = 13, "-2nd"
+    HMinUnison = 14, "Unison"
+    HPlus2nd = 15, "+2nd"
+    HPlus3rd = 16, "+3rd"
+    HPlus4th = 17, "+4th"
+    HPlus5th = 18, "+5th"
+    HPlus6th = 19, "+6th"
+    HPlus7th = 20, "+7th"
+    HPlus1Oct = 21, "+1oct"
+    HPlus9th = 22, "+9th"
+    HPlus10th = 23, "+10th"
+    HPlus11th = 24, "+11th"
+    HPlus12th = 25, "+12th"
+    HPlus13th = 26, "+13th"
+    HPlus14th = 27, "+14th"
+    HPlus2Oct = 28, "+2oct"
+    HUser = 29, "User"
+
+
+class Key(IntEnum):
+    def __new__(cls, value: int, description: str = "") -> "Key":
+        obj = int.__new__(cls, value)
+        obj._value_ = value
+        obj.description = description  # type: ignore[attr-defined]
+
+        return obj
+
+    def __repr__(self) -> str:
+        return self.description  # type: ignore[attr-defined,no-any-return]
+
+    C = 0, "C (Am)"
+    Db = 1, "Db (Bbm)"
+    D = 2, "D (Bm)"
+    Eb = 3, "Eb (Cm)"
+    E = 4, "E (C#m)"
+    F = 5, "F (Dm)"
+    Fs = 6, "F# (D#m)"
+    G = 7, "G (Em)"
+    Ab = 8, "Ab (Fm)"
+    A = 9, "A (F#m)"
+    Bb = 10, "Bb (Gm)"
+    B = 11, "B (G#m)"
+
+
+class HumanizerMode(Enum):
+    Picking = 0
+    Auto = 1
+
+
+class Vowel(Enum):
+    a = 0
+    e = 1
+    i = 2
+    o = 3
+    u = 4
+
+
 class EqModel(TslBaseModel):
-    eq_on: bool
-    eq_type: EqType
-    eq_low_cut: LowCutFreq
-    eq_low_gain: int = Field(ge=-20, le=20)
-    eq_low_mid_freq: MidFreq
-    eq_low_mid_q: float
-    eq_low_mid_gain: int = Field(ge=-20, le=20)
-    eq_high_mid_freq: MidFreq
-    eq_high_mid_q: float
-    eq_high_mid_gain: int = Field(ge=-20, le=20)
-    eq_high_gain: int = Field(ge=-20, le=20)
-    eq_high_cut: HighCutFreq
-    eq_level: int = Field(ge=-20, le=20)
-    eq_bar_31: EqBar
-    eq_bar_62: EqBar
-    eq_bar_125: EqBar
-    eq_bar_250: EqBar
-    eq_bar_500: EqBar
-    eq_bar_1000: EqBar
-    eq_bar_2000: EqBar
-    eq_bar_4000: EqBar
-    eq_bar_8000: EqBar
-    eq_bar_16000: EqBar
-    eq_bar_level: EqBar
+    on: bool
+    type_: EqType
+    low_cut: LowCutFreq
+    low_gain: Gain20dB
+    low_mid_freq: MidFreq
+    low_mid_q: float
+    low_mid_gain: Gain20dB
+    high_mid_freq: MidFreq
+    high_mid_q: float
+    high_mid_gain: Gain20dB
+    high_gain: Gain20dB
+    high_cut: HighCutFreq
+    level: Gain20dB
+    bar_31: Gain12dB
+    bar_62: Gain12dB
+    bar_125: Gain12dB
+    bar_250: Gain12dB
+    bar_500: Gain12dB
+    bar_1000: Gain12dB
+    bar_2000: Gain12dB
+    bar_4000: Gain12dB
+    bar_8000: Gain12dB
+    bar_16000: Gain12dB
+    bar_level: Gain12dB
 
     @classmethod
     def decode(cls, values: list[str]) -> JsonDict:
@@ -314,30 +584,30 @@ class EqModel(TslBaseModel):
             raise ValueError("must contain exactly 24 items")
 
         return {
-            "eq_on": i(values[0]) > 0,
-            "eq_type": EqType(i(values[1])),
-            "eq_low_cut": LowCutFreq(i(values[2])),
-            "eq_low_gain": i(values[3]) - 20,
-            "eq_low_mid_freq": MidFreq(i(values[4])),
-            "eq_low_mid_q": q(values[5]),
-            "eq_low_mid_gain": i(values[6]) - 20,
-            "eq_high_mid_freq": MidFreq(i(values[7])),
-            "eq_high_mid_q": q(values[8]),
-            "eq_high_mid_gain": i(values[9]) - 20,
-            "eq_high_gain": i(values[10]) - 20,
-            "eq_high_cut": HighCutFreq(i(values[11])),
-            "eq_level": i(values[12]) - 20,
-            "eq_bar_31": eq(values[13]),
-            "eq_bar_62": eq(values[14]),
-            "eq_bar_125": eq(values[15]),
-            "eq_bar_250": eq(values[16]),
-            "eq_bar_500": eq(values[17]),
-            "eq_bar_1000": eq(values[18]),
-            "eq_bar_2000": eq(values[19]),
-            "eq_bar_4000": eq(values[20]),
-            "eq_bar_8000": eq(values[21]),
-            "eq_bar_16000": eq(values[22]),
-            "eq_bar_level": eq(values[23]),
+            "on": i(values[0]) > 0,
+            "type_": EqType(i(values[1])),
+            "low_cut": LowCutFreq(i(values[2])),
+            "low_gain": gain_20db(values[3]),
+            "low_mid_freq": MidFreq(i(values[4])),
+            "low_mid_q": q(values[5]),
+            "low_mid_gain": gain_20db(values[6]),
+            "high_mid_freq": MidFreq(i(values[7])),
+            "high_mid_q": q(values[8]),
+            "high_mid_gain": gain_20db(values[9]),
+            "high_gain": gain_20db(values[10]),
+            "high_cut": HighCutFreq(i(values[11])),
+            "level": gain_20db(values[12]),
+            "bar_31": gain_12db(values[13]),
+            "bar_62": gain_12db(values[14]),
+            "bar_125": gain_12db(values[15]),
+            "bar_250": gain_12db(values[16]),
+            "bar_500": gain_12db(values[17]),
+            "bar_1000": gain_12db(values[18]),
+            "bar_2000": gain_12db(values[19]),
+            "bar_4000": gain_12db(values[20]),
+            "bar_8000": gain_12db(values[21]),
+            "bar_16000": gain_12db(values[22]),
+            "bar_level": gain_12db(values[23]),
         }
 
 
@@ -358,7 +628,7 @@ class Patch0Model(TslBaseModel):
     amp_eq_bass: Percent
     amp_eq_middle: Percent
     amp_eq_treble: Percent
-    amp_eq_presence: int
+    amp_eq_presence: Percent
 
     eq: EqModel
 
@@ -404,13 +674,14 @@ class Patch1Model(TslBaseModel):
     reverb_direct_mix: Percent
     reverb_color: Percent
     noise_suppressor_on: bool
-    noise_suppressor_threshold: int
-    noise_suppressor_release: int
+    noise_suppressor_threshold: Percent
+    noise_suppressor_release: Percent
+    master_key: Key
     # V2
     solo_on: bool | None
-    solo_level: int | None
+    solo_level: Percent | None
 
-    contour: int
+    contour: ContourChoice
 
     @classmethod
     def decode(cls, values: list[str]) -> JsonDict:
@@ -431,6 +702,7 @@ class Patch1Model(TslBaseModel):
             "noise_suppressor_on": i(values[38]) > 0,
             "noise_suppressor_threshold": i(values[39]),
             "noise_suppressor_release": i(values[40]),
+            "master_key": Key(i(values[49])),
         }
 
         if len(values) == 91:
@@ -531,13 +803,13 @@ class PatchMk2v2Model(TslBaseModel):
     solo_eq_position: EqPosition
     solo_eq_on: bool
     solo_eq_low_cut: LowCutFreq
-    solo_eq_low_gain: float
+    solo_eq_low_gain: Gain12dB
     solo_eq_mid_freq: MidFreq
-    solo_eq_mid_q: float
-    solo_eq_mid_gain: float
-    solo_eq_high_gain: float
+    solo_eq_mid_q: Q
+    solo_eq_mid_gain: Gain12dB
+    solo_eq_high_gain: Gain12dB
     solo_eq_high_cut: HighCutFreq
-    solo_eq_level: float
+    solo_eq_level: Gain12dB
 
     @classmethod
     def decode(cls, values: list[str]) -> JsonDict:
@@ -548,13 +820,13 @@ class PatchMk2v2Model(TslBaseModel):
             "solo_eq_position": i(values[0]),
             "solo_eq_on": i(values[1]) > 0,
             "solo_eq_low_cut": LowCutFreq(i(values[2])),
-            "solo_eq_low_gain": (i(values[3]) - 24) * 0.5,
+            "solo_eq_low_gain": gain_12db(values[3]),
             "solo_eq_mid_freq": MidFreq(i(values[4])),
             "solo_eq_mid_q": q(values[5]),
-            "solo_eq_mid_gain": (i(values[6]) - 24) * 0.5,
-            "solo_eq_high_gain": (i(values[7]) - 24) * 0.5,
+            "solo_eq_mid_gain": gain_12db(values[6]),
+            "solo_eq_high_gain": gain_12db(values[7]),
             "solo_eq_high_cut": HighCutFreq(i(values[8])),
-            "solo_eq_level": (i(values[9]) - 24) * 0.5,
+            "solo_eq_level": gain_12db(values[9]),
         }
 
         return res
@@ -620,6 +892,913 @@ class ContourModel(TslBaseModel):
         return res
 
 
+class TWahModel(TslBaseModel):
+    mode: WahMode
+    polarity: Polarity
+    sens: Percent
+    frequency: Percent
+    peak: Percent
+    direct_mix: Percent
+    level: Percent
+
+    @classmethod
+    def decode(cls, values: list[str]) -> JsonDict:
+        if len(values) != len(cls._get_fields()):
+            raise ValueError(f"must contain exactly {len(cls._get_fields())} items, not {len(values)}")
+
+        res = {
+            "mode": i(values[0]),
+            "polarity": i(values[1]),
+            "sens": i(values[2]),
+            "frequency": i(values[3]),
+            "peak": i(values[4]),
+            "direct_mix": i(values[5]),
+            "level": i(values[6]),
+        }
+
+        return res
+
+
+class AutoWahModel(TslBaseModel):
+    mode: WahMode
+    frequency: Percent
+    peak: Percent
+    rate: Percent
+    depth: Percent
+    direct_mix: Percent
+    level: Percent
+
+    @classmethod
+    def decode(cls, values: list[str]) -> JsonDict:
+        if len(values) != len(cls._get_fields()):
+            raise ValueError(f"must contain exactly {len(cls._get_fields())} items, not {len(values)}")
+
+        res = {
+            "mode": i(values[0]),
+            "frequency": i(values[1]),
+            "peak": i(values[2]),
+            "rate": i(values[3]),
+            "depth": i(values[4]),
+            "direct_mix": i(values[5]),
+            "level": i(values[6]),
+        }
+
+        return res
+
+
+class PedalWahModel(TslBaseModel):
+    type_: PedalWahType
+    pedal_pos: Percent
+    pedal_min: Percent
+    pedal_max: Percent
+    level: Percent
+    direct_mix: Percent
+
+    @classmethod
+    def decode(cls, values: list[str]) -> JsonDict:
+        if len(values) != len(cls._get_fields()):
+            raise ValueError(f"must contain exactly {len(cls._get_fields())} items, not {len(values)}")
+
+        res = {
+            "type_": i(values[0]),
+            "pedal_pos": i(values[1]),
+            "pedal_min": i(values[2]),
+            "pedal_max": i(values[3]),
+            "level": i(values[4]),
+            "direct_mix": i(values[5]),
+        }
+
+        return res
+
+
+class CompressorModel(TslBaseModel):
+    type_: CompressorType
+    sustain: Percent
+    attack: Percent
+    tone: int
+    level: Percent
+
+    @classmethod
+    def decode(cls, values: list[str]) -> JsonDict:
+        if len(values) != len(cls._get_fields()):
+            raise ValueError(f"must contain exactly {len(cls._get_fields())} items, not {len(values)}")
+
+        res = {
+            "type_": CompressorType(i(values[0])),
+            "sustain": i(values[1]),
+            "attack": i(values[2]),
+            "tone": i(values[3]) - 50,
+            "level": i(values[4]),
+        }
+
+        return res
+
+
+class LimiterModel(TslBaseModel):
+    type_: LimiterType
+    attack: Percent
+    threshold: Percent
+    ratio: Ratio
+    release: Percent
+    level: Percent
+
+    @classmethod
+    def decode(cls, values: list[str]) -> JsonDict:
+        if len(values) != len(cls._get_fields()):
+            raise ValueError(f"must contain exactly {len(cls._get_fields())} items, not {len(values)}")
+
+        res = {
+            "type_": LimiterType(i(values[0])),
+            "attack": i(values[1]),
+            "threshold": i(values[2]),
+            "ratio": Ratio(i(values[3])),
+            "release": i(values[4]),
+            "level": i(values[5]),
+        }
+
+        return res
+
+
+class GraphicEqModel(TslBaseModel):
+    bar_31: Gain20dB
+    bar_62: Gain20dB
+    bar_125: Gain20dB
+    bar_250: Gain20dB
+    bar_500: Gain20dB
+    bar_1000: Gain20dB
+    bar_2000: Gain20dB
+    bar_4000: Gain20dB
+    bar_8000: Gain20dB
+    bar_16000: Gain20dB
+    bar_level: Gain20dB
+
+    @classmethod
+    def decode(cls, values: list[str]) -> JsonDict:
+        if len(values) != len(cls._get_fields()):
+            raise ValueError(f"must contain exactly {len(cls._get_fields())} items, not {len(values)}")
+
+        res = {
+            "bar_31": gain_20db(values[0]),
+            "bar_62": gain_20db(values[1]),
+            "bar_125": gain_20db(values[2]),
+            "bar_250": gain_20db(values[3]),
+            "bar_500": gain_20db(values[4]),
+            "bar_1000": gain_20db(values[5]),
+            "bar_2000": gain_20db(values[6]),
+            "bar_4000": gain_20db(values[7]),
+            "bar_8000": gain_20db(values[8]),
+            "bar_16000": gain_20db(values[9]),
+            "bar_level": gain_20db(values[10]),
+        }
+
+        return res
+
+
+class ParametricEqModel(TslBaseModel):
+    low_cut: LowCutFreq
+    low_gain: Gain20dB
+    low_mid_freq: MidFreq
+    low_mid_q: float
+    low_mid_gain: Gain20dB
+    high_mid_freq: MidFreq
+    high_mid_q: float
+    high_mid_gain: Gain20dB
+    high_gain: Gain20dB
+    high_cut: HighCutFreq
+    level: Gain20dB
+
+    @classmethod
+    def decode(cls, values: list[str]) -> JsonDict:
+        if len(values) != len(cls._get_fields()):
+            raise ValueError(f"must contain exactly {len(cls._get_fields())} items, not {len(values)}")
+
+        res = {
+            "low_cut": i(values[0]),
+            "low_gain": gain_20db(values[1]),
+            "low_mid_freq": i(values[2]),
+            "low_mid_q": q(values[3]),
+            "low_mid_gain": gain_20db(values[4]),
+            "high_mid_freq": i(values[5]),
+            "high_mid_q": q(values[6]),
+            "high_mid_gain": gain_20db(values[7]),
+            "high_gain": gain_20db(values[8]),
+            "high_cut": i(values[9]),
+            "level": gain_20db(values[10]),
+        }
+
+        return res
+
+
+class GuitarSimModel(TslBaseModel):
+    type_: GuitarSimType
+    low: int = Field(ge=-50, le=50)
+    high: int = Field(ge=-50, le=50)
+    level: Percent
+    body: Percent
+
+    @classmethod
+    def decode(cls, values: list[str]) -> JsonDict:
+        if len(values) != len(cls._get_fields()):
+            raise ValueError(f"must contain exactly {len(cls._get_fields())} items, not {len(values)}")
+
+        res = {
+            "type_": i(values[0]),
+            "low": i(values[1]) - 50,
+            "high": i(values[2]) - 50,
+            "level": i(values[3]),
+            "body": i(values[4]),
+        }
+
+        return res
+
+
+class SlowGearModel(TslBaseModel):
+    sens: Percent
+    rise_time: Percent
+    level: Percent
+
+    @classmethod
+    def decode(cls, values: list[str]) -> JsonDict:
+        if len(values) != len(cls._get_fields()):
+            raise ValueError(f"must contain exactly {len(cls._get_fields())} items, not {len(values)}")
+
+        res = {
+            "sens": i(values[0]),
+            "rise_time": i(values[1]),
+            "level": i(values[2]),
+        }
+
+        return res
+
+
+class WaveSynthModel(TslBaseModel):
+    type_: WaveSynthType
+    cutoff: Percent
+    resonance: Percent
+    level: Percent
+    filter_sens: Percent
+    filter_decay: Percent
+    filter_depth: Percent
+    direct_mix: Percent
+
+    @classmethod
+    def decode(cls, values: list[str]) -> JsonDict:
+        if len(values) != len(cls._get_fields()):
+            raise ValueError(f"must contain exactly {len(cls._get_fields())} items, not {len(values)}")
+
+        res = {
+            "type_": i(values[0]),
+            "cutoff": i(values[1]),
+            "resonance": i(values[2]),
+            "filter_sens": i(values[3]),
+            "filter_decay": i(values[4]),
+            "filter_depth": i(values[5]),
+            "level": i(values[6]),
+            "direct_mix": i(values[7]),
+        }
+
+        return res
+
+
+class OctaveModel(TslBaseModel):
+    range_: int = Field(ge=1, le=4)
+    level: Percent
+    direct_mix: Percent
+
+    @classmethod
+    def decode(cls, values: list[str]) -> JsonDict:
+        if len(values) != len(cls._get_fields()):
+            raise ValueError(f"must contain exactly {len(cls._get_fields())} items, not {len(values)}")
+
+        res = {
+            "range_": i(values[0]) + 1,
+            "level": i(values[1]),
+            "direct_mix": i(values[2]),
+        }
+
+        return res
+
+
+class PitchShifterModel(TslBaseModel):
+    voice: VoiceType
+    ps1_mode: PitchShifterMode
+    ps1_pitch: Pitch
+    ps1_fine: int = Field(ge=-50, le=50)
+    ps1_pre_delay: int = Field(ge=0, le=300)
+    ps1_level: Percent
+    ps1_feedback: Percent
+    ps2_mode: PitchShifterMode
+    ps2_pitch: Pitch
+    ps2_fine: int = Field(ge=-50, le=50)
+    ps2_pre_delay: int = Field(ge=0, le=300)
+    ps2_level: Percent
+    direct_mix: Percent
+
+    @classmethod
+    def decode(cls, values: list[str]) -> JsonDict:
+        if len(values) != 15:
+            raise ValueError(f"must contain exactly 15 items, not {len(values)}")
+
+        res = {
+            "voice": i(values[0]),
+            "ps1_mode": i(values[1]),
+            "ps1_pitch": pitch(values[2]),
+            "ps1_fine": i(values[3]) - 50,
+            "ps1_pre_delay": decode_delay_time(values[4:6]),
+            "ps1_level": i(values[6]),
+            "ps2_mode": i(values[7]),
+            "ps2_pitch": pitch(values[8]),
+            "ps2_fine": i(values[9]) - 50,
+            "ps2_pre_delay": decode_delay_time(values[10:12]),
+            "ps2_level": i(values[12]),
+            "ps1_feedback": i(values[13]),
+            "direct_mix": i(values[14]),
+        }
+
+        return res
+
+
+class HarmonistUserSettings(TslBaseModel):
+    e: Pitch
+    f: Pitch
+    f_sharp: Pitch
+    g: Pitch
+    a_flat: Pitch
+    a: Pitch
+    b_flat: Pitch
+    b: Pitch
+    c: Pitch
+    d_flat: Pitch
+    d: Pitch
+    e_flat: Pitch
+
+    @classmethod
+    def decode(cls, values: list[str]) -> JsonDict:
+        if len(values) != len(cls._get_fields()):
+            raise ValueError(f"must contain exactly {len(cls._get_fields())} items, not {len(values)}")
+
+        res = {
+            "e": pitch(values[0]),
+            "f": pitch(values[1]),
+            "f_sharp": pitch(values[2]),
+            "g": pitch(values[3]),
+            "a_flat": pitch(values[4]),
+            "a": pitch(values[5]),
+            "b_flat": pitch(values[6]),
+            "b": pitch(values[7]),
+            "c": pitch(values[8]),
+            "d_flat": pitch(values[9]),
+            "d": pitch(values[10]),
+            "e_flat": pitch(values[11]),
+        }
+
+        return res
+
+
+class HarmonistModel(TslBaseModel):
+    voice: VoiceType
+    hr1_mode: Harmony
+    hr1_level: Percent
+    hr1_pre_delay: int = Field(ge=0, le=300)
+    hr1_feedback: Percent
+    hr2_mode: Harmony
+    hr2_level: Percent
+    hr2_pre_delay: int = Field(ge=0, le=300)
+    direct_mix: Percent
+    hr1_user: HarmonistUserSettings
+    hr2_user: HarmonistUserSettings
+
+    @classmethod
+    def decode(cls, values: list[str]) -> JsonDict:
+        if len(values) != 35:
+            raise ValueError(f"must contain exactly 35 items, not {len(values)}")
+
+        res = {
+            "voice": i(values[0]),
+            "hr1_mode": Harmony(i(values[1])),
+            "hr1_pre_delay": decode_delay_time(values[2:4]),
+            "hr1_level": i(values[4]),
+            "hr2_mode": Harmony(i(values[5])),
+            "hr2_pre_delay": decode_delay_time(values[6:8]),
+            "hr2_level": i(values[8]),
+            "hr1_feedback": i(values[9]),
+            "direct_mix": i(values[10]),
+            "hr1_user": HarmonistUserSettings.decode(values[11:23]),
+            "hr2_user": HarmonistUserSettings.decode(values[23:35]),
+        }
+
+        return res
+
+
+class AcProcessorModel(TslBaseModel):
+    type_: AcProcessorType
+    bass: int = Field(ge=-50, le=50)
+    middle: int = Field(ge=-50, le=50)
+    middle_freq: MidFreq
+    treble: int = Field(ge=-50, le=50)
+    presence: int = Field(ge=-50, le=50)
+    level: Percent
+
+    @classmethod
+    def decode(cls, values: list[str]) -> JsonDict:
+        if len(values) != len(cls._get_fields()):
+            raise ValueError(f"must contain exactly {len(cls._get_fields())} items, not {len(values)}")
+
+        res = {
+            "type_": i(values[0]),
+            "bass": i(values[1]) - 50,
+            "middle": i(values[2]) - 50,
+            "middle_freq": i(values[3]),
+            "treble": i(values[4]) - 50,
+            "presence": i(values[5]) - 50,
+            "level": i(values[6]),
+        }
+
+        return res
+
+
+class PhaserModel(TslBaseModel):
+    type_: PhaserType
+    rate: Percent
+    depth: Percent
+    manual: Percent
+    resonance: Percent
+    step_rate: ToggleablePercent
+    level: Percent
+    direct_mix: Percent
+
+    @classmethod
+    def decode(cls, values: list[str]) -> JsonDict:
+        if len(values) != len(cls._get_fields()):
+            raise ValueError(f"must contain exactly {len(cls._get_fields())} items, not {len(values)}")
+
+        res = {
+            "type_": i(values[0]),
+            "rate": i(values[1]),
+            "depth": i(values[2]),
+            "manual": i(values[3]),
+            "resonance": i(values[4]),
+            "step_rate": ToggleablePercent(i(values[5])),
+            "direct_mix": i(values[6]),
+            "level": i(values[7]),
+        }
+
+        return res
+
+
+class FlangerModel(TslBaseModel):
+    rate: Percent
+    depth: Percent
+    manual: Percent
+    resonance: Percent
+    low_cut: LowCutFreq
+    level: Percent
+    direct_mix: Percent
+
+    @classmethod
+    def decode(cls, values: list[str]) -> JsonDict:
+        if len(values) != len(cls._get_fields()):
+            raise ValueError(f"must contain exactly {len(cls._get_fields())} items, not {len(values)}")
+
+        res = {
+            "rate": i(values[0]),
+            "depth": i(values[1]),
+            "manual": i(values[2]),
+            "resonance": i(values[3]),
+            "low_cut": LowCutFreq(i(values[4])),
+            "direct_mix": i(values[5]),
+            "level": i(values[6]),
+        }
+
+        return res
+
+
+class TremoloModel(TslBaseModel):
+    wave_shape: Percent
+    rate: Percent
+    depth: Percent
+    level: Percent
+
+    @classmethod
+    def decode(cls, values: list[str]) -> JsonDict:
+        if len(values) != len(cls._get_fields()):
+            raise ValueError(f"must contain exactly {len(cls._get_fields())} items, not {len(values)}")
+
+        res = {
+            "wave_shape": i(values[0]),
+            "rate": i(values[1]),
+            "depth": i(values[2]),
+            "level": i(values[3]),
+        }
+
+        return res
+
+
+class RotaryModel(TslBaseModel):
+    rate: Percent
+    depth: Percent
+    level: Percent
+
+    @classmethod
+    def decode(cls, values: list[str]) -> JsonDict:
+        if len(values) != 5:
+            raise ValueError(f"must contain exactly 5 items, not {len(values)}")
+
+        res = {
+            "rate": i(values[0]),
+            "depth": i(values[3]),
+            "level": i(values[4]),
+        }
+
+        return res
+
+
+class UniVModel(TslBaseModel):
+    rate: Percent
+    depth: Percent
+    level: Percent
+
+    @classmethod
+    def decode(cls, values: list[str]) -> JsonDict:
+        if len(values) != len(cls._get_fields()):
+            raise ValueError(f"must contain exactly {len(cls._get_fields())} items, not {len(values)}")
+
+        res = {
+            "rate": i(values[0]),
+            "depth": i(values[1]),
+            "level": i(values[2]),
+        }
+
+        return res
+
+
+class SlicerModel(TslBaseModel):
+    pattern: int = Field(ge=1, le=20)
+    rate: Percent
+    trigger_sens: Percent
+    level: Percent
+    direct_mix: Percent
+
+    @classmethod
+    def decode(cls, values: list[str]) -> JsonDict:
+        if len(values) != len(cls._get_fields()):
+            raise ValueError(f"must contain exactly {len(cls._get_fields())} items, not {len(values)}")
+
+        res = {
+            "pattern": i(values[0]) + 1,
+            "rate": i(values[1]),
+            "trigger_sens": i(values[2]),
+            "level": i(values[3]),
+            "direct_mix": i(values[4]),
+        }
+
+        return res
+
+
+class VibratoModel(TslBaseModel):
+    rate: Percent
+    depth: Percent
+    level: Percent
+
+    @classmethod
+    def decode(cls, values: list[str]) -> JsonDict:
+        if len(values) != 5:
+            raise ValueError(f"must contain exactly 5 items, not {len(values)}")
+
+        res = {
+            "rate": i(values[0]),
+            "depth": i(values[1]),
+            "level": i(values[4]),
+        }
+
+        return res
+
+
+class RingModModel(TslBaseModel):
+    type_: RingModMode
+    frequency: Percent
+    level: Percent
+    direct_mix: Percent
+
+    @classmethod
+    def decode(cls, values: list[str]) -> JsonDict:
+        if len(values) != len(cls._get_fields()):
+            raise ValueError(f"must contain exactly {len(cls._get_fields())} items, not {len(values)}")
+
+        res = {
+            "type_": i(values[0]),
+            "frequency": i(values[1]),
+            "level": i(values[2]),
+            "direct_mix": i(values[3]),
+        }
+
+        return res
+
+
+class HumanizerModel(TslBaseModel):
+    mode: HumanizerMode
+    vowel1: Vowel
+    vowel2: Vowel
+    rate: Percent
+    depth: Percent
+    sens: Percent
+    manual: Percent
+    level: Percent
+
+    @classmethod
+    def decode(cls, values: list[str]) -> JsonDict:
+        if len(values) != len(cls._get_fields()):
+            raise ValueError(f"must contain exactly {len(cls._get_fields())} items, not {len(values)}")
+
+        res = {
+            "mode": i(values[0]),
+            "vowel1": i(values[1]),
+            "vowel2": i(values[2]),
+            "sens": i(values[3]),
+            "rate": i(values[4]),
+            "depth": i(values[5]),
+            "manual": i(values[6]),
+            "level": i(values[7]),
+        }
+
+        return res
+
+
+class ChorusModel(TslBaseModel):
+    crossover_frequency: CrossoverFreq
+    low_rate: Percent
+    low_depth: Percent
+    low_pre_delay: float = Field(ge=0, le=40, multiple_of=0.5)
+    low_level: Percent
+    high_rate: Percent
+    high_depth: Percent
+    high_pre_delay: float = Field(ge=0, le=40, multiple_of=0.5)
+    high_level: Percent
+    direct_mix: Percent
+
+    @classmethod
+    def decode(cls, values: list[str]) -> JsonDict:
+        if len(values) != len(cls._get_fields()):
+            raise ValueError(f"must contain exactly {len(cls._get_fields())} items, not {len(values)}")
+
+        res = {
+            "crossover_frequency": i(values[0]),
+            "low_rate": i(values[1]),
+            "low_depth": i(values[2]),
+            "low_pre_delay": i(values[3]) * 0.5,
+            "low_level": i(values[4]),
+            "high_rate": i(values[5]),
+            "high_depth": i(values[6]),
+            "high_pre_delay": i(values[7]) * 0.5,
+            "high_level": i(values[8]),
+            "direct_mix": i(values[9]),
+        }
+
+        return res
+
+
+class AcGuitarSimModel(TslBaseModel):
+    body: Percent
+    low: int = Field(ge=-50, le=50)
+    high: int = Field(ge=-50, le=50)
+    level: Percent
+
+    @classmethod
+    def decode(cls, values: list[str]) -> JsonDict:
+        if len(values) != 5:
+            raise ValueError(f"must contain exactly 5 items, not {len(values)}")
+
+        res = {
+            "high": i(values[0]) - 50,
+            "body": i(values[1]),
+            "low": i(values[2]) - 50,
+            "level": i(values[4]),
+        }
+
+        return res
+
+
+class Phaser90EModel(TslBaseModel):
+    script_on: bool
+    speed: Percent
+
+    @classmethod
+    def decode(cls, values: list[str]) -> JsonDict:
+        if len(values) != len(cls._get_fields()):
+            raise ValueError(f"must contain exactly {len(cls._get_fields())} items, not {len(values)}")
+
+        res = {
+            "script_on": i(values[0]) > 0,
+            "speed": i(values[1]),
+        }
+
+        return res
+
+
+class Flanger117EModel(TslBaseModel):
+    manual: Percent
+    width: Percent
+    speed: Percent
+    regen: Percent
+
+    @classmethod
+    def decode(cls, values: list[str]) -> JsonDict:
+        if len(values) != len(cls._get_fields()):
+            raise ValueError(f"must contain exactly {len(cls._get_fields())} items, not {len(values)}")
+
+        res = {
+            "manual": i(values[0]),
+            "width": i(values[1]),
+            "speed": i(values[2]),
+            "regen": i(values[3]),
+        }
+
+        return res
+
+
+class Wah95EModel(TslBaseModel):
+    pedal_pos: Percent
+    pedal_min: Percent
+    pedal_max: Percent
+    level: Percent
+    direct_mix: Percent
+
+    @classmethod
+    def decode(cls, values: list[str]) -> JsonDict:
+        if len(values) != len(cls._get_fields()):
+            raise ValueError(f"must contain exactly {len(cls._get_fields())} items, not {len(values)}")
+
+        res = {
+            "pedal_pos": i(values[0]),
+            "pedal_min": i(values[1]),
+            "pedal_max": i(values[2]),
+            "level": i(values[3]),
+            "direct_mix": i(values[4]),
+        }
+
+        return res
+
+
+class DelayChorusType(Enum):
+    Chorus = 0
+    Echo = 1
+
+
+class DelayChorusOutput(Enum):
+    DAndE = 0
+    DOverE = 1
+
+
+class DelayChorus30Model(TslBaseModel):
+    type_: DelayChorusType
+    chorus_intensity: Percent
+    echo_repeat_rate: int = Field(ge=0, le=600)
+    echo_intensity: Percent
+    echo_volume: Percent
+    input_volume: Percent
+    tone: Percent
+    output: DelayChorusOutput
+
+    @classmethod
+    def decode(cls, values: list[str]) -> JsonDict:
+        if len(values) != len(cls._get_fields()) + 1:
+            raise ValueError(f"must contain exactly {len(cls._get_fields()) + 1} items, not {len(values)}")
+
+        res = {
+            "type_": i(values[0]),
+            "chorus_intensity": i(values[2]),
+            "echo_repeat_rate": decode_delay_time(values[3:5]),
+            "echo_intensity": i(values[5]),
+            "echo_volume": i(values[6]),
+            "tone": i(values[7]),
+            "input_volume": i(values[1]),
+            "output": i(values[8]),
+        }
+
+        return res
+
+
+class HeavyOctaveModel(TslBaseModel):
+    level_1_oct: Percent
+    level_2_oct: Percent
+    direct_mix: Percent
+
+    @classmethod
+    def decode(cls, values: list[str]) -> JsonDict:
+        if len(values) != len(cls._get_fields()):
+            raise ValueError(f"must contain exactly {len(cls._get_fields())} items, not {len(values)}")
+
+        res = {
+            "level_1_oct": i(values[0]),
+            "level_2_oct": i(values[1]),
+            "direct_mix": i(values[2]),
+        }
+
+        return res
+
+
+class PedalBendModel(TslBaseModel):
+    pedal_pos: Percent
+    pitch: Pitch
+    level: Percent
+    direct_mix: Percent
+
+    @classmethod
+    def decode(cls, values: list[str]) -> JsonDict:
+        if len(values) != len(cls._get_fields()):
+            raise ValueError(f"must contain exactly {len(cls._get_fields())} items, not {len(values)}")
+
+        res = {
+            "pitch": pitch(values[0]),
+            "pedal_pos": i(values[1]),
+            "level": i(values[2]),
+            "direct_mix": i(values[3]),
+        }
+
+        return res
+
+
+class FxModel(TslBaseModel):
+    on: bool
+    type_: ModFxType
+    t_wah: TWahModel
+    auto_wah: AutoWahModel
+    pedal_wah: PedalWahModel
+    compressor: CompressorModel
+    limiter: LimiterModel
+    graphic_eq: GraphicEqModel
+    parametric_eq: ParametricEqModel
+    guitar_sim: GuitarSimModel
+    slow_gear: SlowGearModel
+    wave_synth: WaveSynthModel
+    octave: OctaveModel
+    pitch_shifter: PitchShifterModel
+    harmonist: HarmonistModel
+    ac_processor: AcProcessorModel
+    phaser: PhaserModel
+    flanger: FlangerModel
+    tremolo: TremoloModel
+    rotary: RotaryModel
+    uni_v: UniVModel
+    slicer: SlicerModel
+    vibrato: VibratoModel
+    ring_mod: RingModModel
+    humanizer: HumanizerModel
+    chorus: ChorusModel
+    ac_guitar_sim: AcGuitarSimModel
+    phaser_90e: Phaser90EModel
+    flanger_117e: Flanger117EModel
+    wah_95e: Wah95EModel
+    dc30: DelayChorus30Model
+    heavy_octave: HeavyOctaveModel
+    pedal_bend: PedalBendModel
+
+    @classmethod
+    def decode(cls, values: list[str]) -> JsonDict:
+        if len(values) != 225:
+            raise ValueError(f"must contain exactly 225 items, not {len(values)}")
+
+        res = {
+            "on": i(values[0]) > 0,
+            "type_": ModFxType(i(values[1])),
+            "t_wah": TWahModel.decode(values[2:9]),
+            "auto_wah": AutoWahModel.decode(values[9:16]),
+            "pedal_wah": PedalWahModel.decode(values[16:22]),
+            "compressor": CompressorModel.decode(values[22:27]),
+            "limiter": LimiterModel.decode(values[27:33]),
+            "graphic_eq": GraphicEqModel.decode(values[33:44]),
+            "parametric_eq": ParametricEqModel.decode(values[44:55]),
+            "guitar_sim": GuitarSimModel.decode(values[55:60]),
+            "slow_gear": SlowGearModel.decode(values[60:63]),
+            "wave_synth": WaveSynthModel.decode(values[63:71]),
+            "octave": OctaveModel.decode(values[71:74]),
+            "pitch_shifter": PitchShifterModel.decode(values[74:89]),
+            "harmonist": HarmonistModel.decode(values[89:124]),
+            "ac_processor": AcProcessorModel.decode(values[124:131]),
+            "phaser": PhaserModel.decode(values[131:139]),
+            "flanger": FlangerModel.decode(values[139:146]),
+            # TODO: 146
+            "tremolo": TremoloModel.decode(values[147:151]),
+            # TODO: 151-152
+            "rotary": RotaryModel.decode(values[153:158]),
+            "uni_v": UniVModel.decode(values[158:161]),
+            "slicer": SlicerModel.decode(values[161:166]),
+            "vibrato": VibratoModel.decode(values[166:171]),
+            "ring_mod": RingModModel.decode(values[171:175]),
+            "humanizer": HumanizerModel.decode(values[175:183]),
+            "chorus": ChorusModel.decode(values[183:193]),
+            "ac_guitar_sim": AcGuitarSimModel.decode(values[193:198]),
+            "phaser_90e": Phaser90EModel.decode(values[198:200]),
+            "flanger_117e": Flanger117EModel.decode(values[200:204]),
+            "wah_95e": Wah95EModel.decode(values[204:209]),
+            "dc30": DelayChorus30Model.decode(values[209:218]),
+            "heavy_octave": HeavyOctaveModel.decode(values[218:221]),
+            "pedal_bend": PedalBendModel.decode(values[221:]),
+        }
+
+        return res
+
+
 class ParamSetModel(TslBaseModel):
     class Config:
         allow_population_by_field_name = True
@@ -628,8 +1807,8 @@ class ParamSetModel(TslBaseModel):
     name: str = Field(alias="UserPatch%PatchName")
     patch0: Patch0Model = Field(alias="UserPatch%Patch_0")
 
-    # fx1: list[str] = Field(alias="UserPatch%Fx(1)")
-    # fx2: list[str] = Field(alias="UserPatch%Fx(2)")
+    fx1: FxModel = Field(alias="UserPatch%Fx(1)")
+    fx2: FxModel = Field(alias="UserPatch%Fx(2)")
     delay1: DelayModel = Field(alias="UserPatch%Delay(1)")
     delay2: DelayModel = Field(alias="UserPatch%Delay(2)")
     patch1: Patch1Model = Field(alias="UserPatch%Patch_1")
@@ -658,6 +1837,14 @@ class ParamSetModel(TslBaseModel):
             raise ValueError("must be 16 chars or fewer")
 
         return v.rstrip()
+
+    @validator("fx1", pre=True)
+    def parse_fx1(cls, v: list[str]) -> JsonDict:
+        return FxModel.decode(v)
+
+    @validator("fx2", pre=True)
+    def parse_fx2(cls, v: list[str]) -> JsonDict:
+        return FxModel.decode(v)
 
     @validator("delay1", pre=True)
     def parse_delay1(cls, v: list[str]) -> JsonDict:
