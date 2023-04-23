@@ -1813,15 +1813,15 @@ class ParamSetModel(TslBaseModel):
     delay2: DelayModel = Field(alias="UserPatch%Delay(2)")
     patch1: Patch1Model = Field(alias="UserPatch%Patch_1")
     patch2: Patch2Model = Field(alias="UserPatch%Patch_2")
-    # status: list[str] = Field(alias="UserPatch%Status")
-    # knob_assign: list[str] = Field(alias="UserPatch%KnobAsgn")
-    # expression_pedal_assign: list[str] = Field(alias="UserPatch%ExpPedalAsgn")
-    # expression_pedal_min_max: list[str] = Field(alias="UserPatch%ExpPedalAsgnMinMax")
-    # gafc_expression1_assign: list[str] = Field(alias="UserPatch%GafcExp1Asgn")
-    # gafc_expression1_min_max: list[str] = Field(alias="UserPatch%GafcExp1AsgnMinMax")
-    # gafc_expression2_assign: list[str] = Field(alias="UserPatch%GafcExp2Asgn")
-    # gafc_expression2_min_max: list[str] = Field(alias="UserPatch%GafcExp2AsgnMinMax")
-    # footswitch_assign: list[str] | None = Field(alias="UserPatch%FsAsgn")
+    # status: list[str] = Field(alias="UserPatch%Status")  # noqa: ERA001
+    # knob_assign: list[str] = Field(alias="UserPatch%KnobAsgn")  # noqa: ERA001
+    # expression_pedal_assign: list[str] = Field(alias="UserPatch%ExpPedalAsgn")  # noqa: ERA001
+    # expression_pedal_min_max: list[str] = Field(alias="UserPatch%ExpPedalAsgnMinMax")  # noqa: ERA001
+    # gafc_expression1_assign: list[str] = Field(alias="UserPatch%GafcExp1Asgn")  # noqa: ERA001
+    # gafc_expression1_min_max: list[str] = Field(alias="UserPatch%GafcExp1AsgnMinMax")  # noqa: ERA001
+    # gafc_expression2_assign: list[str] = Field(alias="UserPatch%GafcExp2Asgn")  # noqa: ERA001
+    # gafc_expression2_min_max: list[str] = Field(alias="UserPatch%GafcExp2AsgnMinMax")  # noqa: ERA001
+    # footswitch_assign: list[str] | None = Field(alias="UserPatch%FsAsgn")  # noqa: ERA001
     patch_mk2v2: PatchMk2v2Model | None = Field(alias="UserPatch%Patch_Mk2V2")
     contour1: ContourModel | None = Field(alias="UserPatch%Contour(1)")
     contour2: ContourModel | None = Field(alias="UserPatch%Contour(2)")
@@ -1829,7 +1829,7 @@ class ParamSetModel(TslBaseModel):
     eq2: EqModel = Field(alias="UserPatch%Eq(2)")
 
     @validator("name", pre=True)
-    def validate_name(cls, v: str | list[str]) -> str:
+    def validate_name(cls, v: str | list[str]) -> str:  # noqa: N805
         if isinstance(v, list):
             v = "".join([chr(int(i, 16)) for i in v])
 
@@ -1839,51 +1839,51 @@ class ParamSetModel(TslBaseModel):
         return v.rstrip()
 
     @validator("fx1", pre=True)
-    def parse_fx1(cls, v: list[str]) -> JsonDict:
+    def parse_fx1(cls, v: list[str]) -> JsonDict:  # noqa: N805
         return FxModel.decode(v)
 
     @validator("fx2", pre=True)
-    def parse_fx2(cls, v: list[str]) -> JsonDict:
+    def parse_fx2(cls, v: list[str]) -> JsonDict:  # noqa: N805
         return FxModel.decode(v)
 
     @validator("delay1", pre=True)
-    def parse_delay1(cls, v: list[str]) -> JsonDict:
+    def parse_delay1(cls, v: list[str]) -> JsonDict:  # noqa: N805
         return DelayModel.decode(v)
 
     @validator("delay2", pre=True)
-    def parse_delay2(cls, v: list[str]) -> JsonDict:
+    def parse_delay2(cls, v: list[str]) -> JsonDict:  # noqa: N805
         return DelayModel.decode(v)
 
     @validator("patch0", pre=True)
-    def parse_patch0(cls, v: list[str]) -> JsonDict:
+    def parse_patch0(cls, v: list[str]) -> JsonDict:  # noqa: N805
         return Patch0Model.decode(v)
 
     @validator("patch1", pre=True)
-    def parse_patch1(cls, v: list[str]) -> JsonDict:
+    def parse_patch1(cls, v: list[str]) -> JsonDict:  # noqa: N805
         return Patch1Model.decode(v)
 
     @validator("patch2", pre=True)
-    def parse_patch2(cls, v: list[str]) -> JsonDict:
+    def parse_patch2(cls, v: list[str]) -> JsonDict:  # noqa: N805
         return Patch2Model.decode(v)
 
     @validator("patch_mk2v2", pre=True)
-    def parse_patch_mk2v2(cls, v: list[str]) -> JsonDict:
+    def parse_patch_mk2v2(cls, v: list[str]) -> JsonDict:  # noqa: N805
         return PatchMk2v2Model.decode(v)
 
     @validator("contour1", pre=True)
-    def parse_contour1(cls, v: list[str]) -> JsonDict:
+    def parse_contour1(cls, v: list[str]) -> JsonDict:  # noqa: N805
         return ContourModel.decode(v)
 
     @validator("contour2", pre=True)
-    def parse_contour2(cls, v: list[str]) -> JsonDict:
+    def parse_contour2(cls, v: list[str]) -> JsonDict:  # noqa: N805
         return ContourModel.decode(v)
 
     @validator("contour3", pre=True)
-    def parse_contour3(cls, v: list[str]) -> JsonDict:
+    def parse_contour3(cls, v: list[str]) -> JsonDict:  # noqa: N805
         return ContourModel.decode(v)
 
     @validator("eq2", pre=True)
-    def parse_eq2(cls, v: list[str]) -> JsonDict:
+    def parse_eq2(cls, v: list[str]) -> JsonDict:  # noqa: N805
         return EqModel.decode(v)
 
 
@@ -1905,7 +1905,7 @@ class TslModel(TslBaseModel):
     data: list[list[PatchModel]]
 
     @validator("device")
-    def validate_device(cls, v: str) -> str:
+    def validate_device(cls, v: str) -> str:  # noqa: N805
         if v != "KATANA MkII":
             raise ValueError(f"Unsupported device: {v}")
 

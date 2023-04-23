@@ -53,5 +53,4 @@ def update_some_values(f: str) -> None:
     Path("patches.tsl").write_text(json.dumps(tsl))
 
 
-# update_some_values(sys.argv[1])
 print_file_content(sys.argv[1])
