@@ -662,6 +662,12 @@ class Patch0Model(TslBaseModel):
         return res
 
 
+class PedalFxType(Enum):
+    Wah = 0
+    Bend = 1
+    Wah95E = 2
+
+
 class Patch1Model(TslBaseModel):
     reverb_on: bool
     reverb_type: ReverbType
@@ -673,6 +679,22 @@ class Patch1Model(TslBaseModel):
     reverb_effect_level: Percent
     reverb_direct_mix: Percent
     reverb_color: Percent
+    pedal_fx_type: PedalFxType
+    pedal_fx_wah_type: PedalWahType
+    pedal_fx_wah_pos: Percent
+    pedal_fx_wah_min: Percent
+    pedal_fx_wah_max: Percent
+    pedal_fx_wah_level: Percent
+    pedal_fx_wah_direct_mix: Percent
+    pedal_fx_bend_pos: Percent
+    pedal_fx_bend_pitch: Pitch
+    pedal_fx_bend_level: Percent
+    pedal_fx_bend_direct_mix: Percent
+    pedal_fx_wah95_pos: Percent
+    pedal_fx_wah95_min: Percent
+    pedal_fx_wah95_max: Percent
+    pedal_fx_wah95_level: Percent
+    pedal_fx_wah95_direct_mix: Percent
     noise_suppressor_on: bool
     noise_suppressor_threshold: Percent
     noise_suppressor_release: Percent
@@ -699,6 +721,22 @@ class Patch1Model(TslBaseModel):
             "reverb_effect_level": i(values[8]),
             "reverb_direct_mix": i(values[9]),
             "reverb_color": i(values[11]),
+            "pedal_fx_type": i(values[17]),
+            "pedal_fx_wah_type": i(values[18]),
+            "pedal_fx_wah_pos": i(values[19]),
+            "pedal_fx_wah_min": i(values[20]),
+            "pedal_fx_wah_max": i(values[21]),
+            "pedal_fx_wah_level": i(values[22]),
+            "pedal_fx_wah_direct_mix": i(values[23]),
+            "pedal_fx_bend_pitch": pitch(values[24]),
+            "pedal_fx_bend_pos": i(values[25]),
+            "pedal_fx_bend_level": i(values[26]),
+            "pedal_fx_bend_direct_mix": i(values[27]),
+            "pedal_fx_wah95_pos": i(values[28]),
+            "pedal_fx_wah95_min": i(values[29]),
+            "pedal_fx_wah95_max": i(values[30]),
+            "pedal_fx_wah95_level": i(values[31]),
+            "pedal_fx_wah95_direct_mix": i(values[32]),
             "noise_suppressor_on": i(values[38]) > 0,
             "noise_suppressor_threshold": i(values[39]),
             "noise_suppressor_release": i(values[40]),
