@@ -48,7 +48,7 @@ class TWahModel(TslBaseModel):
     level: Percent
 
     @classmethod
-    def decode(cls, values: list[str]) -> JsonDict:
+    def decode_tsl(cls, values: list[str]) -> JsonDict:
         if len(values) != len(cls._get_fields()):
             raise ValueError(f"must contain exactly {len(cls._get_fields())} items, not {len(values)}")
 
@@ -75,7 +75,7 @@ class AutoWahModel(TslBaseModel):
     level: Percent
 
     @classmethod
-    def decode(cls, values: list[str]) -> JsonDict:
+    def decode_tsl(cls, values: list[str]) -> JsonDict:
         if len(values) != len(cls._get_fields()):
             raise ValueError(f"must contain exactly {len(cls._get_fields())} items, not {len(values)}")
 
@@ -101,7 +101,7 @@ class PedalWahModel(TslBaseModel):
     direct_mix: Percent
 
     @classmethod
-    def decode(cls, values: list[str]) -> JsonDict:
+    def decode_tsl(cls, values: list[str]) -> JsonDict:
         if len(values) != len(cls._get_fields()):
             raise ValueError(f"must contain exactly {len(cls._get_fields())} items, not {len(values)}")
 
@@ -125,7 +125,7 @@ class CompressorModel(TslBaseModel):
     level: Percent
 
     @classmethod
-    def decode(cls, values: list[str]) -> JsonDict:
+    def decode_tsl(cls, values: list[str]) -> JsonDict:
         if len(values) != len(cls._get_fields()):
             raise ValueError(f"must contain exactly {len(cls._get_fields())} items, not {len(values)}")
 
@@ -149,7 +149,7 @@ class LimiterModel(TslBaseModel):
     level: Percent
 
     @classmethod
-    def decode(cls, values: list[str]) -> JsonDict:
+    def decode_tsl(cls, values: list[str]) -> JsonDict:
         if len(values) != len(cls._get_fields()):
             raise ValueError(f"must contain exactly {len(cls._get_fields())} items, not {len(values)}")
 
@@ -179,7 +179,7 @@ class GraphicEqModel(TslBaseModel):
     bar_level: Gain20dB
 
     @classmethod
-    def decode(cls, values: list[str]) -> JsonDict:
+    def decode_tsl(cls, values: list[str]) -> JsonDict:
         if len(values) != len(cls._get_fields()):
             raise ValueError(f"must contain exactly {len(cls._get_fields())} items, not {len(values)}")
 
@@ -214,7 +214,7 @@ class ParametricEqModel(TslBaseModel):
     level: Gain20dB
 
     @classmethod
-    def decode(cls, values: list[str]) -> JsonDict:
+    def decode_tsl(cls, values: list[str]) -> JsonDict:
         if len(values) != len(cls._get_fields()):
             raise ValueError(f"must contain exactly {len(cls._get_fields())} items, not {len(values)}")
 
@@ -243,7 +243,7 @@ class GuitarSimModel(TslBaseModel):
     body: Percent
 
     @classmethod
-    def decode(cls, values: list[str]) -> JsonDict:
+    def decode_tsl(cls, values: list[str]) -> JsonDict:
         if len(values) != len(cls._get_fields()):
             raise ValueError(f"must contain exactly {len(cls._get_fields())} items, not {len(values)}")
 
@@ -264,7 +264,7 @@ class SlowGearModel(TslBaseModel):
     level: Percent
 
     @classmethod
-    def decode(cls, values: list[str]) -> JsonDict:
+    def decode_tsl(cls, values: list[str]) -> JsonDict:
         if len(values) != len(cls._get_fields()):
             raise ValueError(f"must contain exactly {len(cls._get_fields())} items, not {len(values)}")
 
@@ -288,7 +288,7 @@ class WaveSynthModel(TslBaseModel):
     direct_mix: Percent
 
     @classmethod
-    def decode(cls, values: list[str]) -> JsonDict:
+    def decode_tsl(cls, values: list[str]) -> JsonDict:
         if len(values) != len(cls._get_fields()):
             raise ValueError(f"must contain exactly {len(cls._get_fields())} items, not {len(values)}")
 
@@ -312,7 +312,7 @@ class OctaveModel(TslBaseModel):
     direct_mix: Percent
 
     @classmethod
-    def decode(cls, values: list[str]) -> JsonDict:
+    def decode_tsl(cls, values: list[str]) -> JsonDict:
         if len(values) != len(cls._get_fields()):
             raise ValueError(f"must contain exactly {len(cls._get_fields())} items, not {len(values)}")
 
@@ -341,7 +341,7 @@ class PitchShifterModel(TslBaseModel):
     direct_mix: Percent
 
     @classmethod
-    def decode(cls, values: list[str]) -> JsonDict:
+    def decode_tsl(cls, values: list[str]) -> JsonDict:
         if len(values) != 15:
             raise ValueError(f"must contain exactly 15 items, not {len(values)}")
 
@@ -379,7 +379,7 @@ class HarmonistUserSettings(TslBaseModel):
     e_flat: Pitch
 
     @classmethod
-    def decode(cls, values: list[str]) -> JsonDict:
+    def decode_tsl(cls, values: list[str]) -> JsonDict:
         if len(values) != len(cls._get_fields()):
             raise ValueError(f"must contain exactly {len(cls._get_fields())} items, not {len(values)}")
 
@@ -415,7 +415,7 @@ class HarmonistModel(TslBaseModel):
     hr2_user: HarmonistUserSettings
 
     @classmethod
-    def decode(cls, values: list[str]) -> JsonDict:
+    def decode_tsl(cls, values: list[str]) -> JsonDict:
         if len(values) != 35:
             raise ValueError(f"must contain exactly 35 items, not {len(values)}")
 
@@ -429,8 +429,8 @@ class HarmonistModel(TslBaseModel):
             "hr2_level": i(values[8]),
             "hr1_feedback": i(values[9]),
             "direct_mix": i(values[10]),
-            "hr1_user": HarmonistUserSettings.decode(values[11:23]),
-            "hr2_user": HarmonistUserSettings.decode(values[23:35]),
+            "hr1_user": HarmonistUserSettings.decode_tsl(values[11:23]),
+            "hr2_user": HarmonistUserSettings.decode_tsl(values[23:35]),
         }
 
         return res
@@ -446,7 +446,7 @@ class AcProcessorModel(TslBaseModel):
     level: Percent
 
     @classmethod
-    def decode(cls, values: list[str]) -> JsonDict:
+    def decode_tsl(cls, values: list[str]) -> JsonDict:
         if len(values) != len(cls._get_fields()):
             raise ValueError(f"must contain exactly {len(cls._get_fields())} items, not {len(values)}")
 
@@ -474,7 +474,7 @@ class PhaserModel(TslBaseModel):
     direct_mix: Percent
 
     @classmethod
-    def decode(cls, values: list[str]) -> JsonDict:
+    def decode_tsl(cls, values: list[str]) -> JsonDict:
         if len(values) != len(cls._get_fields()):
             raise ValueError(f"must contain exactly {len(cls._get_fields())} items, not {len(values)}")
 
@@ -502,7 +502,7 @@ class FlangerModel(TslBaseModel):
     direct_mix: Percent
 
     @classmethod
-    def decode(cls, values: list[str]) -> JsonDict:
+    def decode_tsl(cls, values: list[str]) -> JsonDict:
         if len(values) != len(cls._get_fields()):
             raise ValueError(f"must contain exactly {len(cls._get_fields())} items, not {len(values)}")
 
@@ -526,7 +526,7 @@ class TremoloModel(TslBaseModel):
     level: Percent
 
     @classmethod
-    def decode(cls, values: list[str]) -> JsonDict:
+    def decode_tsl(cls, values: list[str]) -> JsonDict:
         if len(values) != len(cls._get_fields()):
             raise ValueError(f"must contain exactly {len(cls._get_fields())} items, not {len(values)}")
 
@@ -546,7 +546,7 @@ class RotaryModel(TslBaseModel):
     level: Percent
 
     @classmethod
-    def decode(cls, values: list[str]) -> JsonDict:
+    def decode_tsl(cls, values: list[str]) -> JsonDict:
         if len(values) != 5:
             raise ValueError(f"must contain exactly 5 items, not {len(values)}")
 
@@ -565,7 +565,7 @@ class UniVModel(TslBaseModel):
     level: Percent
 
     @classmethod
-    def decode(cls, values: list[str]) -> JsonDict:
+    def decode_tsl(cls, values: list[str]) -> JsonDict:
         if len(values) != len(cls._get_fields()):
             raise ValueError(f"must contain exactly {len(cls._get_fields())} items, not {len(values)}")
 
@@ -586,7 +586,7 @@ class SlicerModel(TslBaseModel):
     direct_mix: Percent
 
     @classmethod
-    def decode(cls, values: list[str]) -> JsonDict:
+    def decode_tsl(cls, values: list[str]) -> JsonDict:
         if len(values) != len(cls._get_fields()):
             raise ValueError(f"must contain exactly {len(cls._get_fields())} items, not {len(values)}")
 
@@ -607,7 +607,7 @@ class VibratoModel(TslBaseModel):
     level: Percent
 
     @classmethod
-    def decode(cls, values: list[str]) -> JsonDict:
+    def decode_tsl(cls, values: list[str]) -> JsonDict:
         if len(values) != 5:
             raise ValueError(f"must contain exactly 5 items, not {len(values)}")
 
@@ -627,7 +627,7 @@ class RingModModel(TslBaseModel):
     direct_mix: Percent
 
     @classmethod
-    def decode(cls, values: list[str]) -> JsonDict:
+    def decode_tsl(cls, values: list[str]) -> JsonDict:
         if len(values) != len(cls._get_fields()):
             raise ValueError(f"must contain exactly {len(cls._get_fields())} items, not {len(values)}")
 
@@ -652,7 +652,7 @@ class HumanizerModel(TslBaseModel):
     level: Percent
 
     @classmethod
-    def decode(cls, values: list[str]) -> JsonDict:
+    def decode_tsl(cls, values: list[str]) -> JsonDict:
         if len(values) != len(cls._get_fields()):
             raise ValueError(f"must contain exactly {len(cls._get_fields())} items, not {len(values)}")
 
@@ -683,7 +683,7 @@ class ChorusModel(TslBaseModel):
     direct_mix: Percent
 
     @classmethod
-    def decode(cls, values: list[str]) -> JsonDict:
+    def decode_tsl(cls, values: list[str]) -> JsonDict:
         if len(values) != len(cls._get_fields()):
             raise ValueError(f"must contain exactly {len(cls._get_fields())} items, not {len(values)}")
 
@@ -710,7 +710,7 @@ class AcGuitarSimModel(TslBaseModel):
     level: Percent
 
     @classmethod
-    def decode(cls, values: list[str]) -> JsonDict:
+    def decode_tsl(cls, values: list[str]) -> JsonDict:
         if len(values) != 5:
             raise ValueError(f"must contain exactly 5 items, not {len(values)}")
 
@@ -729,7 +729,7 @@ class Phaser90EModel(TslBaseModel):
     speed: Percent
 
     @classmethod
-    def decode(cls, values: list[str]) -> JsonDict:
+    def decode_tsl(cls, values: list[str]) -> JsonDict:
         if len(values) != len(cls._get_fields()):
             raise ValueError(f"must contain exactly {len(cls._get_fields())} items, not {len(values)}")
 
@@ -748,7 +748,7 @@ class Flanger117EModel(TslBaseModel):
     regen: Percent
 
     @classmethod
-    def decode(cls, values: list[str]) -> JsonDict:
+    def decode_tsl(cls, values: list[str]) -> JsonDict:
         if len(values) != len(cls._get_fields()):
             raise ValueError(f"must contain exactly {len(cls._get_fields())} items, not {len(values)}")
 
@@ -770,7 +770,7 @@ class Wah95EModel(TslBaseModel):
     direct_mix: Percent
 
     @classmethod
-    def decode(cls, values: list[str]) -> JsonDict:
+    def decode_tsl(cls, values: list[str]) -> JsonDict:
         if len(values) != len(cls._get_fields()):
             raise ValueError(f"must contain exactly {len(cls._get_fields())} items, not {len(values)}")
 
@@ -796,7 +796,7 @@ class DelayChorus30Model(TslBaseModel):
     output: DelayChorusOutput
 
     @classmethod
-    def decode(cls, values: list[str]) -> JsonDict:
+    def decode_tsl(cls, values: list[str]) -> JsonDict:
         if len(values) != len(cls._get_fields()) + 1:
             raise ValueError(f"must contain exactly {len(cls._get_fields()) + 1} items, not {len(values)}")
 
@@ -820,7 +820,7 @@ class HeavyOctaveModel(TslBaseModel):
     direct_mix: Percent
 
     @classmethod
-    def decode(cls, values: list[str]) -> JsonDict:
+    def decode_tsl(cls, values: list[str]) -> JsonDict:
         if len(values) != len(cls._get_fields()):
             raise ValueError(f"must contain exactly {len(cls._get_fields())} items, not {len(values)}")
 
@@ -840,7 +840,7 @@ class PedalBendModel(TslBaseModel):
     direct_mix: Percent
 
     @classmethod
-    def decode(cls, values: list[str]) -> JsonDict:
+    def decode_tsl(cls, values: list[str]) -> JsonDict:
         if len(values) != len(cls._get_fields()):
             raise ValueError(f"must contain exactly {len(cls._get_fields())} items, not {len(values)}")
 
@@ -890,48 +890,48 @@ class FxModel(TslBaseModel):
     pedal_bend: PedalBendModel | None
 
     @classmethod
-    def decode(cls, values: list[str]) -> JsonDict:
+    def decode_tsl(cls, values: list[str]) -> JsonDict:
         if len(values) not in (221, 225):
             raise ValueError(f"must contain exactly 225 items, not {len(values)}")
 
         res = {
             "on": i(values[0]) > 0,
             "type_": ModFxType(i(values[1])),
-            "t_wah": TWahModel.decode(values[2:9]),
-            "auto_wah": AutoWahModel.decode(values[9:16]),
-            "pedal_wah": PedalWahModel.decode(values[16:22]),
-            "compressor": CompressorModel.decode(values[22:27]),
-            "limiter": LimiterModel.decode(values[27:33]),
-            "graphic_eq": GraphicEqModel.decode(values[33:44]),
-            "parametric_eq": ParametricEqModel.decode(values[44:55]),
-            "guitar_sim": GuitarSimModel.decode(values[55:60]),
-            "slow_gear": SlowGearModel.decode(values[60:63]),
-            "wave_synth": WaveSynthModel.decode(values[63:71]),
-            "octave": OctaveModel.decode(values[71:74]),
-            "pitch_shifter": PitchShifterModel.decode(values[74:89]),
-            "harmonist": HarmonistModel.decode(values[89:124]),
-            "ac_processor": AcProcessorModel.decode(values[124:131]),
-            "phaser": PhaserModel.decode(values[131:139]),
-            "flanger": FlangerModel.decode(values[139:146]),
+            "t_wah": TWahModel.decode_tsl(values[2:9]),
+            "auto_wah": AutoWahModel.decode_tsl(values[9:16]),
+            "pedal_wah": PedalWahModel.decode_tsl(values[16:22]),
+            "compressor": CompressorModel.decode_tsl(values[22:27]),
+            "limiter": LimiterModel.decode_tsl(values[27:33]),
+            "graphic_eq": GraphicEqModel.decode_tsl(values[33:44]),
+            "parametric_eq": ParametricEqModel.decode_tsl(values[44:55]),
+            "guitar_sim": GuitarSimModel.decode_tsl(values[55:60]),
+            "slow_gear": SlowGearModel.decode_tsl(values[60:63]),
+            "wave_synth": WaveSynthModel.decode_tsl(values[63:71]),
+            "octave": OctaveModel.decode_tsl(values[71:74]),
+            "pitch_shifter": PitchShifterModel.decode_tsl(values[74:89]),
+            "harmonist": HarmonistModel.decode_tsl(values[89:124]),
+            "ac_processor": AcProcessorModel.decode_tsl(values[124:131]),
+            "phaser": PhaserModel.decode_tsl(values[131:139]),
+            "flanger": FlangerModel.decode_tsl(values[139:146]),
             # TODO: 146
-            "tremolo": TremoloModel.decode(values[147:151]),
+            "tremolo": TremoloModel.decode_tsl(values[147:151]),
             # TODO: 151-152
-            "rotary": RotaryModel.decode(values[153:158]),
-            "uni_v": UniVModel.decode(values[158:161]),
-            "slicer": SlicerModel.decode(values[161:166]),
-            "vibrato": VibratoModel.decode(values[166:171]),
-            "ring_mod": RingModModel.decode(values[171:175]),
-            "humanizer": HumanizerModel.decode(values[175:183]),
-            "chorus": ChorusModel.decode(values[183:193]),
-            "ac_guitar_sim": AcGuitarSimModel.decode(values[193:198]),
-            "phaser_90e": Phaser90EModel.decode(values[198:200]),
-            "flanger_117e": Flanger117EModel.decode(values[200:204]),
-            "wah_95e": Wah95EModel.decode(values[204:209]),
-            "dc30": DelayChorus30Model.decode(values[209:218]),
-            "heavy_octave": HeavyOctaveModel.decode(values[218:221]),
+            "rotary": RotaryModel.decode_tsl(values[153:158]),
+            "uni_v": UniVModel.decode_tsl(values[158:161]),
+            "slicer": SlicerModel.decode_tsl(values[161:166]),
+            "vibrato": VibratoModel.decode_tsl(values[166:171]),
+            "ring_mod": RingModModel.decode_tsl(values[171:175]),
+            "humanizer": HumanizerModel.decode_tsl(values[175:183]),
+            "chorus": ChorusModel.decode_tsl(values[183:193]),
+            "ac_guitar_sim": AcGuitarSimModel.decode_tsl(values[193:198]),
+            "phaser_90e": Phaser90EModel.decode_tsl(values[198:200]),
+            "flanger_117e": Flanger117EModel.decode_tsl(values[200:204]),
+            "wah_95e": Wah95EModel.decode_tsl(values[204:209]),
+            "dc30": DelayChorus30Model.decode_tsl(values[209:218]),
+            "heavy_octave": HeavyOctaveModel.decode_tsl(values[218:221]),
         }
 
         if len(values) == 225:
-            res["pedal_bend"] = PedalBendModel.decode(values[221:])
+            res["pedal_bend"] = PedalBendModel.decode_tsl(values[221:])
 
         return res

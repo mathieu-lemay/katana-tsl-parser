@@ -12,18 +12,20 @@ def snapshots_folder() -> Path:
 
 
 def test_parse_model_v1(snapshots_folder: Path) -> None:
-    tsl = TslModel.parse_file((snapshots_folder / "factory_v1.tsl"))
+    tsl = json.loads((snapshots_folder / "factory_v1.tsl").read_text())
+    tsl_model = TslModel.decode_tsl(tsl)
 
     with (snapshots_folder / "factory_v1.json").open() as f:
         expected = json.load(f)
 
-    assert tsl.dict() == expected
+    assert tsl_model.dict() == expected
 
 
 def test_parse_model_v2_temp(snapshots_folder: Path) -> None:
-    tsl = TslModel.parse_file((snapshots_folder / "temp_v2.tsl"))
+    tsl = json.loads((snapshots_folder / "temp_v2.tsl").read_text())
+    tsl_model = TslModel.decode_tsl(tsl)
 
     with (snapshots_folder / "temp_v2.json").open() as f:
         expected = json.load(f)
 
-    assert tsl.dict() == expected
+    assert tsl_model.dict() == expected

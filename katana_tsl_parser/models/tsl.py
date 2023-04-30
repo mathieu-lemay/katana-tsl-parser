@@ -62,7 +62,7 @@ class EqModel(TslBaseModel):
     bar_level: Gain12dB
 
     @classmethod
-    def decode(cls, values: list[str]) -> JsonDict:
+    def decode_tsl(cls, values: list[str]) -> JsonDict:
         if len(values) != 24:
             raise ValueError("must contain exactly 24 items")
 
@@ -116,7 +116,7 @@ class Patch0Model(TslBaseModel):
     eq: EqModel
 
     @classmethod
-    def decode(cls, values: list[str]) -> JsonDict:
+    def decode_tsl(cls, values: list[str]) -> JsonDict:
         if len(values) != 72:
             raise ValueError("must contain exactly 72 items")
 
@@ -139,7 +139,7 @@ class Patch0Model(TslBaseModel):
             "amp_eq_presence": i(values[23]),
             "amp_volume": i(values[24]),
             # TODO: 25 -> 47
-            "eq": EqModel.decode(values[48:]),
+            "eq": EqModel.decode_tsl(values[48:]),
         }
 
         return res
@@ -183,7 +183,7 @@ class Patch1Model(TslBaseModel):
     contour: ContourChoice
 
     @classmethod
-    def decode(cls, values: list[str]) -> JsonDict:
+    def decode_tsl(cls, values: list[str]) -> JsonDict:
         if len(values) not in (50, 91):
             raise ValueError("must contain exactly 50 or 91 items, not %d" % len(values))
 
@@ -277,7 +277,7 @@ class Patch2Model(TslBaseModel):
     cab_resonance: CabResonance
 
     @classmethod
-    def decode(cls, values: list[str]) -> JsonDict:
+    def decode_tsl(cls, values: list[str]) -> JsonDict:
         if len(values) != 36:
             raise ValueError("must contain exactly 36 items")
 
@@ -327,7 +327,7 @@ class PatchMk2v2Model(TslBaseModel):
     solo_eq_level: Gain12dB
 
     @classmethod
-    def decode(cls, values: list[str]) -> JsonDict:
+    def decode_tsl(cls, values: list[str]) -> JsonDict:
         if len(values) != 10:
             raise ValueError(f"must contain exactly 10 items, not {len(values)}")
 
@@ -365,7 +365,7 @@ class DelayModel(TslBaseModel):
     mod_sw_on: bool
 
     @classmethod
-    def decode(cls, values: list[str]) -> JsonDict:
+    def decode_tsl(cls, values: list[str]) -> JsonDict:
         if len(values) != 26:
             raise ValueError(f"must contain exactly 26 items, not {len(values)}")
 
@@ -395,7 +395,7 @@ class ContourModel(TslBaseModel):
     freq_shift: int
 
     @classmethod
-    def decode(cls, values: list[str]) -> JsonDict:
+    def decode_tsl(cls, values: list[str]) -> JsonDict:
         if len(values) != 2:
             raise ValueError(f"must contain exactly 2 items, not {len(values)}")
 
@@ -450,51 +450,51 @@ class ParamSetModel(TslBaseModel):
 
     @validator("fx1", pre=True)
     def parse_fx1(cls, v: list[str]) -> JsonDict:  # noqa: N805
-        return FxModel.decode(v)
+        return FxModel.decode_tsl(v)
 
     @validator("fx2", pre=True)
     def parse_fx2(cls, v: list[str]) -> JsonDict:  # noqa: N805
-        return FxModel.decode(v)
+        return FxModel.decode_tsl(v)
 
     @validator("delay1", pre=True)
     def parse_delay1(cls, v: list[str]) -> JsonDict:  # noqa: N805
-        return DelayModel.decode(v)
+        return DelayModel.decode_tsl(v)
 
     @validator("delay2", pre=True)
     def parse_delay2(cls, v: list[str]) -> JsonDict:  # noqa: N805
-        return DelayModel.decode(v)
+        return DelayModel.decode_tsl(v)
 
     @validator("patch0", pre=True)
     def parse_patch0(cls, v: list[str]) -> JsonDict:  # noqa: N805
-        return Patch0Model.decode(v)
+        return Patch0Model.decode_tsl(v)
 
     @validator("patch1", pre=True)
     def parse_patch1(cls, v: list[str]) -> JsonDict:  # noqa: N805
-        return Patch1Model.decode(v)
+        return Patch1Model.decode_tsl(v)
 
     @validator("patch2", pre=True)
     def parse_patch2(cls, v: list[str]) -> JsonDict:  # noqa: N805
-        return Patch2Model.decode(v)
+        return Patch2Model.decode_tsl(v)
 
     @validator("patch_mk2v2", pre=True)
     def parse_patch_mk2v2(cls, v: list[str]) -> JsonDict:  # noqa: N805
-        return PatchMk2v2Model.decode(v)
+        return PatchMk2v2Model.decode_tsl(v)
 
     @validator("contour1", pre=True)
     def parse_contour1(cls, v: list[str]) -> JsonDict:  # noqa: N805
-        return ContourModel.decode(v)
+        return ContourModel.decode_tsl(v)
 
     @validator("contour2", pre=True)
     def parse_contour2(cls, v: list[str]) -> JsonDict:  # noqa: N805
-        return ContourModel.decode(v)
+        return ContourModel.decode_tsl(v)
 
     @validator("contour3", pre=True)
     def parse_contour3(cls, v: list[str]) -> JsonDict:  # noqa: N805
-        return ContourModel.decode(v)
+        return ContourModel.decode_tsl(v)
 
     @validator("eq2", pre=True)
     def parse_eq2(cls, v: list[str]) -> JsonDict:  # noqa: N805
-        return EqModel.decode(v)
+        return EqModel.decode_tsl(v)
 
 
 class MemoModel(TslBaseModel):
@@ -507,12 +507,23 @@ class PatchModel(TslBaseModel):
     memo: MemoModel | str
     param_set: ParamSetModel = Field(alias="paramSet")
 
+    @classmethod
+    def decode_tsl(cls, values: JsonDict) -> "PatchModel":
+        return PatchModel(**values)
+
 
 class TslModel(TslBaseModel):
     name: str
     format_rev: str = Field(alias="formatRev")
     device: str
     data: list[list[PatchModel]]
+
+    @classmethod
+    def decode_tsl(cls, values: JsonDict) -> "TslModel":
+        for idx, entries in enumerate(values["data"]):
+            values["data"][idx] = list(map(PatchModel.decode_tsl, entries))
+
+        return TslModel(**values)
 
     @validator("device")
     def validate_device(cls, v: str) -> str:  # noqa: N805
