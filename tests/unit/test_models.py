@@ -18,3 +18,12 @@ def test_parse_model_v1(snapshots_folder: Path) -> None:
         expected = json.load(f)
 
     assert tsl.dict() == expected
+
+
+def test_parse_model_v2_temp(snapshots_folder: Path) -> None:
+    tsl = TslModel.parse_file((snapshots_folder / "temp_v2.tsl"))
+
+    with (snapshots_folder / "temp_v2.json").open() as f:
+        expected = json.load(f)
+
+    assert tsl.dict() == expected
