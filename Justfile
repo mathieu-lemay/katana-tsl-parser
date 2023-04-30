@@ -10,7 +10,9 @@ lint:
     pre-commit run --all-files
 
 test:
-    poetry run pytest --verbosity=1
+    poetry run pytest \
+        --cov --cov-append --cov-report term-missing --cov-fail-under=100 \
+        --verbosity=1
 
 docker-build:
     docker build --tag "{{ DOCKER_IMAGE }}:{{ DOCKER_TAG }}" .
