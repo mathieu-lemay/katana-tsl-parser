@@ -1,4 +1,4 @@
-from typing import Any, Callable, Generator
+from typing import Any, Callable, Generator, Sequence
 
 from pydantic import BaseModel, ConstrainedFloat, ConstrainedInt, Extra
 
@@ -26,6 +26,20 @@ class TslBaseModel(BaseModel):
     @classmethod
     def _get_fields(cls, by_alias: bool = False) -> set[str]:
         return set(cls.schema(by_alias=by_alias)["properties"].keys())
+
+    @classmethod
+    def _expect_size(cls, values: list[Any], expected: Sequence[int] | int | None = None) -> None:
+        size = len(values)
+        if isinstance(expected, Sequence):
+            if size not in expected:
+                expected_txt = ", ".join(map(str, expected[:-1])) + f" or {expected[-1]}"
+                raise ValueError(f"must contain exactly {expected_txt} items, not {size}")
+
+            return
+
+        expected = expected or len(cls._get_fields())
+        if size != expected:
+            raise ValueError(f"must contain exactly {expected} items, not {size}")
 
 
 class Percent(ConstrainedInt):

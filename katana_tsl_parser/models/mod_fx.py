@@ -49,8 +49,7 @@ class TWahModel(TslBaseModel):
 
     @classmethod
     def decode_tsl(cls, values: list[str]) -> JsonDict:
-        if len(values) != len(cls._get_fields()):
-            raise ValueError(f"must contain exactly {len(cls._get_fields())} items, not {len(values)}")
+        cls._expect_size(values)
 
         res = {
             "mode": i(values[0]),
@@ -76,8 +75,7 @@ class AutoWahModel(TslBaseModel):
 
     @classmethod
     def decode_tsl(cls, values: list[str]) -> JsonDict:
-        if len(values) != len(cls._get_fields()):
-            raise ValueError(f"must contain exactly {len(cls._get_fields())} items, not {len(values)}")
+        cls._expect_size(values)
 
         res = {
             "mode": i(values[0]),
@@ -102,8 +100,7 @@ class PedalWahModel(TslBaseModel):
 
     @classmethod
     def decode_tsl(cls, values: list[str]) -> JsonDict:
-        if len(values) != len(cls._get_fields()):
-            raise ValueError(f"must contain exactly {len(cls._get_fields())} items, not {len(values)}")
+        cls._expect_size(values)
 
         res = {
             "type_": i(values[0]),
@@ -126,8 +123,7 @@ class CompressorModel(TslBaseModel):
 
     @classmethod
     def decode_tsl(cls, values: list[str]) -> JsonDict:
-        if len(values) != len(cls._get_fields()):
-            raise ValueError(f"must contain exactly {len(cls._get_fields())} items, not {len(values)}")
+        cls._expect_size(values)
 
         res = {
             "type_": CompressorType(i(values[0])),
@@ -150,8 +146,7 @@ class LimiterModel(TslBaseModel):
 
     @classmethod
     def decode_tsl(cls, values: list[str]) -> JsonDict:
-        if len(values) != len(cls._get_fields()):
-            raise ValueError(f"must contain exactly {len(cls._get_fields())} items, not {len(values)}")
+        cls._expect_size(values)
 
         res = {
             "type_": LimiterType(i(values[0])),
@@ -180,8 +175,7 @@ class GraphicEqModel(TslBaseModel):
 
     @classmethod
     def decode_tsl(cls, values: list[str]) -> JsonDict:
-        if len(values) != len(cls._get_fields()):
-            raise ValueError(f"must contain exactly {len(cls._get_fields())} items, not {len(values)}")
+        cls._expect_size(values)
 
         res = {
             "bar_31": Gain20dB.parse(values[0]),
@@ -215,8 +209,7 @@ class ParametricEqModel(TslBaseModel):
 
     @classmethod
     def decode_tsl(cls, values: list[str]) -> JsonDict:
-        if len(values) != len(cls._get_fields()):
-            raise ValueError(f"must contain exactly {len(cls._get_fields())} items, not {len(values)}")
+        cls._expect_size(values)
 
         res = {
             "low_cut": i(values[0]),
@@ -244,8 +237,7 @@ class GuitarSimModel(TslBaseModel):
 
     @classmethod
     def decode_tsl(cls, values: list[str]) -> JsonDict:
-        if len(values) != len(cls._get_fields()):
-            raise ValueError(f"must contain exactly {len(cls._get_fields())} items, not {len(values)}")
+        cls._expect_size(values)
 
         res = {
             "type_": i(values[0]),
@@ -265,8 +257,7 @@ class SlowGearModel(TslBaseModel):
 
     @classmethod
     def decode_tsl(cls, values: list[str]) -> JsonDict:
-        if len(values) != len(cls._get_fields()):
-            raise ValueError(f"must contain exactly {len(cls._get_fields())} items, not {len(values)}")
+        cls._expect_size(values)
 
         res = {
             "sens": i(values[0]),
@@ -289,8 +280,7 @@ class WaveSynthModel(TslBaseModel):
 
     @classmethod
     def decode_tsl(cls, values: list[str]) -> JsonDict:
-        if len(values) != len(cls._get_fields()):
-            raise ValueError(f"must contain exactly {len(cls._get_fields())} items, not {len(values)}")
+        cls._expect_size(values)
 
         res = {
             "type_": i(values[0]),
@@ -313,8 +303,7 @@ class OctaveModel(TslBaseModel):
 
     @classmethod
     def decode_tsl(cls, values: list[str]) -> JsonDict:
-        if len(values) != len(cls._get_fields()):
-            raise ValueError(f"must contain exactly {len(cls._get_fields())} items, not {len(values)}")
+        cls._expect_size(values)
 
         res = {
             "range_": i(values[0]) + 1,
@@ -380,8 +369,7 @@ class HarmonistUserSettings(TslBaseModel):
 
     @classmethod
     def decode_tsl(cls, values: list[str]) -> JsonDict:
-        if len(values) != len(cls._get_fields()):
-            raise ValueError(f"must contain exactly {len(cls._get_fields())} items, not {len(values)}")
+        cls._expect_size(values)
 
         res = {
             "e": Pitch.parse(values[0]),
@@ -447,8 +435,7 @@ class AcProcessorModel(TslBaseModel):
 
     @classmethod
     def decode_tsl(cls, values: list[str]) -> JsonDict:
-        if len(values) != len(cls._get_fields()):
-            raise ValueError(f"must contain exactly {len(cls._get_fields())} items, not {len(values)}")
+        cls._expect_size(values)
 
         res = {
             "type_": i(values[0]),
@@ -475,8 +462,7 @@ class PhaserModel(TslBaseModel):
 
     @classmethod
     def decode_tsl(cls, values: list[str]) -> JsonDict:
-        if len(values) != len(cls._get_fields()):
-            raise ValueError(f"must contain exactly {len(cls._get_fields())} items, not {len(values)}")
+        cls._expect_size(values)
 
         res = {
             "type_": i(values[0]),
@@ -503,8 +489,7 @@ class FlangerModel(TslBaseModel):
 
     @classmethod
     def decode_tsl(cls, values: list[str]) -> JsonDict:
-        if len(values) != len(cls._get_fields()):
-            raise ValueError(f"must contain exactly {len(cls._get_fields())} items, not {len(values)}")
+        cls._expect_size(values)
 
         res = {
             "rate": i(values[0]),
@@ -527,8 +512,7 @@ class TremoloModel(TslBaseModel):
 
     @classmethod
     def decode_tsl(cls, values: list[str]) -> JsonDict:
-        if len(values) != len(cls._get_fields()):
-            raise ValueError(f"must contain exactly {len(cls._get_fields())} items, not {len(values)}")
+        cls._expect_size(values)
 
         res = {
             "wave_shape": i(values[0]),
@@ -566,8 +550,7 @@ class UniVModel(TslBaseModel):
 
     @classmethod
     def decode_tsl(cls, values: list[str]) -> JsonDict:
-        if len(values) != len(cls._get_fields()):
-            raise ValueError(f"must contain exactly {len(cls._get_fields())} items, not {len(values)}")
+        cls._expect_size(values)
 
         res = {
             "rate": i(values[0]),
@@ -587,8 +570,7 @@ class SlicerModel(TslBaseModel):
 
     @classmethod
     def decode_tsl(cls, values: list[str]) -> JsonDict:
-        if len(values) != len(cls._get_fields()):
-            raise ValueError(f"must contain exactly {len(cls._get_fields())} items, not {len(values)}")
+        cls._expect_size(values)
 
         res = {
             "pattern": i(values[0]) + 1,
@@ -628,8 +610,7 @@ class RingModModel(TslBaseModel):
 
     @classmethod
     def decode_tsl(cls, values: list[str]) -> JsonDict:
-        if len(values) != len(cls._get_fields()):
-            raise ValueError(f"must contain exactly {len(cls._get_fields())} items, not {len(values)}")
+        cls._expect_size(values)
 
         res = {
             "type_": i(values[0]),
@@ -653,8 +634,7 @@ class HumanizerModel(TslBaseModel):
 
     @classmethod
     def decode_tsl(cls, values: list[str]) -> JsonDict:
-        if len(values) != len(cls._get_fields()):
-            raise ValueError(f"must contain exactly {len(cls._get_fields())} items, not {len(values)}")
+        cls._expect_size(values)
 
         res = {
             "mode": i(values[0]),
@@ -684,8 +664,7 @@ class ChorusModel(TslBaseModel):
 
     @classmethod
     def decode_tsl(cls, values: list[str]) -> JsonDict:
-        if len(values) != len(cls._get_fields()):
-            raise ValueError(f"must contain exactly {len(cls._get_fields())} items, not {len(values)}")
+        cls._expect_size(values)
 
         res = {
             "crossover_frequency": i(values[0]),
@@ -730,8 +709,7 @@ class Phaser90EModel(TslBaseModel):
 
     @classmethod
     def decode_tsl(cls, values: list[str]) -> JsonDict:
-        if len(values) != len(cls._get_fields()):
-            raise ValueError(f"must contain exactly {len(cls._get_fields())} items, not {len(values)}")
+        cls._expect_size(values)
 
         res = {
             "script_on": i(values[0]) > 0,
@@ -749,8 +727,7 @@ class Flanger117EModel(TslBaseModel):
 
     @classmethod
     def decode_tsl(cls, values: list[str]) -> JsonDict:
-        if len(values) != len(cls._get_fields()):
-            raise ValueError(f"must contain exactly {len(cls._get_fields())} items, not {len(values)}")
+        cls._expect_size(values)
 
         res = {
             "manual": i(values[0]),
@@ -771,8 +748,7 @@ class Wah95EModel(TslBaseModel):
 
     @classmethod
     def decode_tsl(cls, values: list[str]) -> JsonDict:
-        if len(values) != len(cls._get_fields()):
-            raise ValueError(f"must contain exactly {len(cls._get_fields())} items, not {len(values)}")
+        cls._expect_size(values)
 
         res = {
             "pedal_pos": i(values[0]),
@@ -797,8 +773,7 @@ class DelayChorus30Model(TslBaseModel):
 
     @classmethod
     def decode_tsl(cls, values: list[str]) -> JsonDict:
-        if len(values) != len(cls._get_fields()) + 1:
-            raise ValueError(f"must contain exactly {len(cls._get_fields()) + 1} items, not {len(values)}")
+        cls._expect_size(values, len(cls._get_fields()) + 1)
 
         res = {
             "type_": i(values[0]),
@@ -821,8 +796,7 @@ class HeavyOctaveModel(TslBaseModel):
 
     @classmethod
     def decode_tsl(cls, values: list[str]) -> JsonDict:
-        if len(values) != len(cls._get_fields()):
-            raise ValueError(f"must contain exactly {len(cls._get_fields())} items, not {len(values)}")
+        cls._expect_size(values)
 
         res = {
             "level_1_oct": i(values[0]),
@@ -841,8 +815,7 @@ class PedalBendModel(TslBaseModel):
 
     @classmethod
     def decode_tsl(cls, values: list[str]) -> JsonDict:
-        if len(values) != len(cls._get_fields()):
-            raise ValueError(f"must contain exactly {len(cls._get_fields())} items, not {len(values)}")
+        cls._expect_size(values)
 
         res = {
             "pitch": Pitch.parse(values[0]),

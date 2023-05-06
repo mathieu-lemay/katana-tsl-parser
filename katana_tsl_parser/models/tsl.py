@@ -63,8 +63,7 @@ class EqModel(TslBaseModel):
 
     @classmethod
     def decode_tsl(cls, values: list[str]) -> JsonDict:
-        if len(values) != 24:
-            raise ValueError("must contain exactly 24 items")
+        cls._expect_size(values)
 
         return {
             "on": i(values[0]) > 0,
@@ -117,8 +116,7 @@ class Patch0Model(TslBaseModel):
 
     @classmethod
     def decode_tsl(cls, values: list[str]) -> JsonDict:
-        if len(values) != 72:
-            raise ValueError("must contain exactly 72 items")
+        cls._expect_size(values, 72)
 
         res = {
             "boost_on": i(values[0]) > 0,
@@ -184,8 +182,7 @@ class Patch1Model(TslBaseModel):
 
     @classmethod
     def decode_tsl(cls, values: list[str]) -> JsonDict:
-        if len(values) not in (50, 91):
-            raise ValueError("must contain exactly 50 or 91 items, not %d" % len(values))
+        cls._expect_size(values, (50, 91))
 
         res = {
             "reverb_on": i(values[0]) > 0,
@@ -278,8 +275,7 @@ class Patch2Model(TslBaseModel):
 
     @classmethod
     def decode_tsl(cls, values: list[str]) -> JsonDict:
-        if len(values) != 36:
-            raise ValueError("must contain exactly 36 items")
+        cls._expect_size(values, 36)
 
         res = {
             "boost_green": BoostType(i(values[4])),
@@ -328,8 +324,7 @@ class PatchMk2v2Model(TslBaseModel):
 
     @classmethod
     def decode_tsl(cls, values: list[str]) -> JsonDict:
-        if len(values) != 10:
-            raise ValueError(f"must contain exactly 10 items, not {len(values)}")
+        cls._expect_size(values)
 
         res = {
             "solo_eq_position": i(values[0]),
@@ -366,8 +361,7 @@ class DelayModel(TslBaseModel):
 
     @classmethod
     def decode_tsl(cls, values: list[str]) -> JsonDict:
-        if len(values) != 26:
-            raise ValueError(f"must contain exactly 26 items, not {len(values)}")
+        cls._expect_size(values, 26)
 
         res = {
             "delay_on": i(values[0]) > 0,
@@ -396,13 +390,14 @@ class ContourModel(TslBaseModel):
 
     @classmethod
     def decode_tsl(cls, values: list[str]) -> JsonDict:
-        if len(values) != 2:
-            raise ValueError(f"must contain exactly 2 items, not {len(values)}")
+        cls._expect_size(values, (2, 8))
 
         res = {
             "contour_type": i(values[0]) + 1,
             "freq_shift": i(values[1]) - 50,
         }
+
+        # TODO: Items 2 to 7
 
         return res
 
@@ -504,7 +499,7 @@ class MemoModel(TslBaseModel):
 
 
 class PatchModel(TslBaseModel):
-    memo: MemoModel | str
+    memo: MemoModel | str | None
     param_set: ParamSetModel = Field(alias="paramSet")
 
     @classmethod

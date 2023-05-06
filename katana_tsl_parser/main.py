@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 import json
+import os.path
 import sys
 from copy import deepcopy
 from pathlib import Path
@@ -15,11 +16,11 @@ if len(sys.argv) != 2:
 
 
 def print_file_content(f: str) -> None:
-    tsl = TslModel.parse_file(f)
+    tsl = TslModel.parse_file(os.path.expanduser(f))
 
     for d in tsl.data:
         for _, p in enumerate(d):
-            debug(p.param_set.patch1)
+            debug(p.param_set)
 
 
 def encode_name(name: str) -> list[str]:
