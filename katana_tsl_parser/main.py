@@ -21,7 +21,7 @@ def print_file_content(f: Path) -> None:
 
     for d in tsl.data:
         for _, p in enumerate(d):
-            debug(p.param_set)
+            debug(p.param_set.contour1)
 
 
 def encode_name(name: str) -> list[str]:

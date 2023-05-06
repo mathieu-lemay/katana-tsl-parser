@@ -1,7 +1,7 @@
 from collections.abc import Callable, Generator, Sequence
-from typing import Any
+from typing import Any, cast
 
-from pydantic import BaseModel, ConstrainedFloat, ConstrainedInt, Extra
+from pydantic import BaseModel, ConstrainedFloat, ConstrainedInt, Extra, PrivateAttr
 
 from katana_tsl_parser.errors import InvalidQValueError, InvalidValueListLengthError
 
@@ -22,9 +22,17 @@ def decode_delay_time(values: list[str]) -> int:
 
 
 class TslBaseModel(BaseModel):
+    _raw: list[str] | None = PrivateAttr()
+
     class Config:
         allow_population_by_field_name = True
         extra = Extra.forbid
+
+    def __init__(self, **data: JsonDict) -> None:
+        if "_raw" in data:
+            self._raw = cast(list[str], data.pop("_raw"))
+
+        super().__init__(**data)
 
     @classmethod
     def _get_fields(cls, *, by_alias: bool = False) -> set[str]:

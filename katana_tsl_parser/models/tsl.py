@@ -182,7 +182,7 @@ class Patch1Model(TslBaseModel):
     solo_on: bool | None
     solo_level: Percent | None
 
-    contour: ContourChoice
+    contour: ContourChoice | None
 
     @classmethod
     def decode_tsl(cls, values: list[str]) -> JsonDict:
@@ -394,6 +394,7 @@ class ContourModel(TslBaseModel):
         return {
             "contour_type": i(values[0]) + 1,
             "freq_shift": i(values[1]) - 50,
+            "_raw": values,
         }
 
 
