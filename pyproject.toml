@@ -66,28 +66,22 @@ exclude = [
     "venv",
 ]
 select = [
-    "A",  # flake8-builtins
-    "B",  # flake8-bugbear
-    "BLE",  # flake8-blind-except
-    "C4",  # flake8-comprehensions
-    "C90",  # mccabe
-    "E",  # pycodestyle
-    "ERA",  # flake8-eradicate
-    "F",  # Pyflakes
-    "G",  # flake8-logging-format
-    "I",  # flake8-isort
-    "N",  # pep8-naming
-    "PT",  # flake8-pytest-style
-    "RUF",  # ruff
-    "S",  # flake8-bandit
-    "W",  # pycodestyle,
+    "ALL",
+]
+ignore = [
+    "ANN",  # flake8-annotations
+    "D1",  # pydocstyle: undocumented-public-*
+    "D203",  # pydocstyle: one-blank-line-before-class (incompatible with D211)
+    "D213",  # pydocstyle: multi-line-summary-second-line (incompatible with D212)
+
+    "PLR2004",  # Magic value used in comparison, consider replacing `x` with a constant variable
 ]
 
 [tool.ruff.pep8-naming]
 classmethod-decorators = [
-    "classmethod",
-    "validator",
-    "root_validator",
+    "pydantic.classmethod",
+    "pydantic.validator",
+    "pydantic.root_validator",
 ]
 
 [tool.ruff.per-file-ignores]

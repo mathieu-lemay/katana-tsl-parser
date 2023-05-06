@@ -1,6 +1,20 @@
 from enum import IntEnum
 
 
+class _DescIntEnum(IntEnum):
+    description: str
+
+    def __new__(cls, value: int, description: str = "") -> "_DescIntEnum":
+        obj = int.__new__(cls, value)
+        obj._value_ = value  # noqa: SLF001 Private member accessed: `_value_`
+        obj.description = description
+
+        return obj
+
+    def __repr__(self) -> str:
+        return self.description
+
+
 class AcProcessorType(IntEnum):
     Small = 0
     Medium = 1
@@ -156,17 +170,7 @@ class GuitarSimType(IntEnum):
     PiezoToAcoustic = 7
 
 
-class Harmony(IntEnum):
-    def __new__(cls, value: int, description: str = "") -> "Harmony":
-        obj = int.__new__(cls, value)
-        obj._value_ = value
-        obj.description = description  # type: ignore[attr-defined]
-
-        return obj
-
-    def __repr__(self) -> str:
-        return self.description  # type: ignore[attr-defined,no-any-return]
-
+class Harmony(_DescIntEnum):
     HMin2Oct = 0, "-2oct"
     HMin14th = 1, "-14th"
     HMin13th = 2, "-13th"
@@ -222,17 +226,7 @@ class HumanizerMode(IntEnum):
     Auto = 1
 
 
-class Key(IntEnum):
-    def __new__(cls, value: int, description: str = "") -> "Key":
-        obj = int.__new__(cls, value)
-        obj._value_ = value
-        obj.description = description  # type: ignore[attr-defined]
-
-        return obj
-
-    def __repr__(self) -> str:
-        return self.description  # type: ignore[attr-defined,no-any-return]
-
+class Key(_DescIntEnum):
     C = 0, "C (Am)"
     Db = 1, "Db (Bbm)"
     D = 2, "D (Bm)"
@@ -280,14 +274,7 @@ class LowCutFreq(IntEnum):
     Hz800 = 17
 
 
-class MidFreq(IntEnum):
-    def __new__(cls, value: int, description: str = "") -> "MidFreq":
-        obj = int.__new__(cls, value)
-        obj._value_ = value
-        obj.description = description  # type: ignore[attr-defined]
-
-        return obj
-
+class MidFreq(_DescIntEnum):
     Hz20 = 0, "20.0 Hz"
     Hz25 = 1, "25.0 Hz"
     Hz31_5 = 2, "31.5 Hz"
@@ -396,17 +383,7 @@ class Range(IntEnum):
     KHz17 = 0x01
 
 
-class Ratio(IntEnum):
-    def __new__(cls, value: int, description: str = "") -> "Ratio":
-        obj = int.__new__(cls, value)
-        obj._value_ = value
-        obj.description = description  # type: ignore[attr-defined]
-
-        return obj
-
-    def __repr__(self) -> str:
-        return self.description  # type: ignore[attr-defined,no-any-return]
-
+class Ratio(_DescIntEnum):
     R1 = 0, "1:1"
     R1_2 = 1, "1.2:1"
     R1_4 = 2, "1.4:1"

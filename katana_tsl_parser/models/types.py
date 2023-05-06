@@ -1,6 +1,9 @@
-from typing import Any, Callable, Generator, Sequence
+from collections.abc import Callable, Generator, Sequence
+from typing import Any
 
 from pydantic import BaseModel, ConstrainedFloat, ConstrainedInt, Extra
+
+from katana_tsl_parser.errors import InvalidQValueError, InvalidValueListLengthError
 
 JsonDict = dict[str, Any]
 
@@ -24,7 +27,7 @@ class TslBaseModel(BaseModel):
         extra = Extra.forbid
 
     @classmethod
-    def _get_fields(cls, by_alias: bool = False) -> set[str]:
+    def _get_fields(cls, *, by_alias: bool = False) -> set[str]:
         return set(cls.schema(by_alias=by_alias)["properties"].keys())
 
     @classmethod
@@ -32,14 +35,13 @@ class TslBaseModel(BaseModel):
         size = len(values)
         if isinstance(expected, Sequence):
             if size not in expected:
-                expected_txt = ", ".join(map(str, expected[:-1])) + f" or {expected[-1]}"
-                raise ValueError(f"must contain exactly {expected_txt} items, not {size}")
+                raise InvalidValueListLengthError(size, expected)
 
             return
 
         expected = expected or len(cls._get_fields())
         if size != expected:
-            raise ValueError(f"must contain exactly {expected} items, not {size}")
+            raise InvalidValueListLengthError(size, expected)
 
 
 class Percent(ConstrainedInt):
@@ -98,9 +100,11 @@ class Q(float):
     @classmethod
     def validate(cls, v: float) -> float:
         if not isinstance(v, float):
-            raise TypeError("float required")
+            # EM101: Exception must not use a string literal, assign to variable first
+            # TRY003: Avoid specifying long messages outside the exception class
+            raise TypeError("float required")  # noqa: EM101, TRY003
 
         if v not in (0.5, 1, 2, 4, 8, 16):
-            raise ValueError("invalid Q value")
+            raise InvalidQValueError(v)
 
         return v

@@ -1,5 +1,11 @@
 from pydantic import Extra, Field, validator
 
+from katana_tsl_parser.errors import (
+    InvalidContourValuesError,
+    NameTooLongError,
+    UnsupportedDeviceError,
+)
+
 from .enums import (
     AmpType,
     BoostType,
@@ -118,7 +124,7 @@ class Patch0Model(TslBaseModel):
     def decode_tsl(cls, values: list[str]) -> JsonDict:
         cls._expect_size(values, 72)
 
-        res = {
+        return {
             "boost_on": i(values[0]) > 0,
             "boost_type": BoostType(i(values[1])),
             "boost_drive": i(values[2]),
@@ -139,8 +145,6 @@ class Patch0Model(TslBaseModel):
             # TODO: 25 -> 47
             "eq": EqModel.decode_tsl(values[48:]),
         }
-
-        return res
 
 
 class Patch1Model(TslBaseModel):
@@ -222,7 +226,7 @@ class Patch1Model(TslBaseModel):
                 {
                     "solo_on": i(values[84]) > 0,
                     "solo_level": i(values[85]),
-                }
+                },
             )
 
             match i(values[86]), i(values[87]):
@@ -235,7 +239,7 @@ class Patch1Model(TslBaseModel):
                 case 1, 2:
                     contour = 3
                 case x, y:
-                    raise ValueError(f"Invalid values for contour: ({x}, {y})")
+                    raise InvalidContourValuesError(x, y)
 
             res["contour"] = contour
 
@@ -277,7 +281,7 @@ class Patch2Model(TslBaseModel):
     def decode_tsl(cls, values: list[str]) -> JsonDict:
         cls._expect_size(values, 36)
 
-        res = {
+        return {
             "boost_green": BoostType(i(values[4])),
             "boost_red": BoostType(i(values[5])),
             "boost_yellow": BoostType(i(values[6])),
@@ -307,8 +311,6 @@ class Patch2Model(TslBaseModel):
             "cab_resonance": CabResonance(i(values[35])),
         }
 
-        return res
-
 
 class PatchMk2v2Model(TslBaseModel):
     solo_eq_position: EqPosition
@@ -326,7 +328,7 @@ class PatchMk2v2Model(TslBaseModel):
     def decode_tsl(cls, values: list[str]) -> JsonDict:
         cls._expect_size(values)
 
-        res = {
+        return {
             "solo_eq_position": i(values[0]),
             "solo_eq_on": i(values[1]) > 0,
             "solo_eq_low_cut": LowCutFreq(i(values[2])),
@@ -338,8 +340,6 @@ class PatchMk2v2Model(TslBaseModel):
             "solo_eq_high_cut": HighCutFreq(i(values[8])),
             "solo_eq_level": Gain12dB.parse(values[9]),
         }
-
-        return res
 
 
 class DelayModel(TslBaseModel):
@@ -363,7 +363,7 @@ class DelayModel(TslBaseModel):
     def decode_tsl(cls, values: list[str]) -> JsonDict:
         cls._expect_size(values, 26)
 
-        res = {
+        return {
             "delay_on": i(values[0]) > 0,
             "delay_type": DelayType(i(values[1])),
             "delay_time": decode_delay_time(values[2:4]),
@@ -381,8 +381,6 @@ class DelayModel(TslBaseModel):
             "mod_sw_on": i(values[25]) > 0,
         }
 
-        return res
-
 
 class ContourModel(TslBaseModel):
     contour_type: int
@@ -392,14 +390,11 @@ class ContourModel(TslBaseModel):
     def decode_tsl(cls, values: list[str]) -> JsonDict:
         cls._expect_size(values, (2, 8))
 
-        res = {
+        # TODO: Items 2 to 7
+        return {
             "contour_type": i(values[0]) + 1,
             "freq_shift": i(values[1]) - 50,
         }
-
-        # TODO: Items 2 to 7
-
-        return res
 
 
 class ParamSetModel(TslBaseModel):
@@ -434,61 +429,61 @@ class ParamSetModel(TslBaseModel):
     # TODO: Move all the validators to parse_tsl and add Version enum
 
     @validator("name", pre=True)
-    def validate_name(cls, v: str | list[str]) -> str:  # noqa: N805
+    def validate_name(cls, v: str | list[str]) -> str:
         if isinstance(v, list):
             v = "".join([chr(int(i, 16)) for i in v])
 
         if len(v) > 16:
-            raise ValueError("must be 16 chars or fewer")
+            raise NameTooLongError(len(v))
 
         return v.rstrip()
 
     @validator("fx1", pre=True)
-    def parse_fx1(cls, v: list[str]) -> JsonDict:  # noqa: N805
+    def parse_fx1(cls, v: list[str]) -> JsonDict:
         return FxModel.decode_tsl(v)
 
     @validator("fx2", pre=True)
-    def parse_fx2(cls, v: list[str]) -> JsonDict:  # noqa: N805
+    def parse_fx2(cls, v: list[str]) -> JsonDict:
         return FxModel.decode_tsl(v)
 
     @validator("delay1", pre=True)
-    def parse_delay1(cls, v: list[str]) -> JsonDict:  # noqa: N805
+    def parse_delay1(cls, v: list[str]) -> JsonDict:
         return DelayModel.decode_tsl(v)
 
     @validator("delay2", pre=True)
-    def parse_delay2(cls, v: list[str]) -> JsonDict:  # noqa: N805
+    def parse_delay2(cls, v: list[str]) -> JsonDict:
         return DelayModel.decode_tsl(v)
 
     @validator("patch0", pre=True)
-    def parse_patch0(cls, v: list[str]) -> JsonDict:  # noqa: N805
+    def parse_patch0(cls, v: list[str]) -> JsonDict:
         return Patch0Model.decode_tsl(v)
 
     @validator("patch1", pre=True)
-    def parse_patch1(cls, v: list[str]) -> JsonDict:  # noqa: N805
+    def parse_patch1(cls, v: list[str]) -> JsonDict:
         return Patch1Model.decode_tsl(v)
 
     @validator("patch2", pre=True)
-    def parse_patch2(cls, v: list[str]) -> JsonDict:  # noqa: N805
+    def parse_patch2(cls, v: list[str]) -> JsonDict:
         return Patch2Model.decode_tsl(v)
 
     @validator("patch_mk2v2", pre=True)
-    def parse_patch_mk2v2(cls, v: list[str]) -> JsonDict:  # noqa: N805
+    def parse_patch_mk2v2(cls, v: list[str]) -> JsonDict:
         return PatchMk2v2Model.decode_tsl(v)
 
     @validator("contour1", pre=True)
-    def parse_contour1(cls, v: list[str]) -> JsonDict:  # noqa: N805
+    def parse_contour1(cls, v: list[str]) -> JsonDict:
         return ContourModel.decode_tsl(v)
 
     @validator("contour2", pre=True)
-    def parse_contour2(cls, v: list[str]) -> JsonDict:  # noqa: N805
+    def parse_contour2(cls, v: list[str]) -> JsonDict:
         return ContourModel.decode_tsl(v)
 
     @validator("contour3", pre=True)
-    def parse_contour3(cls, v: list[str]) -> JsonDict:  # noqa: N805
+    def parse_contour3(cls, v: list[str]) -> JsonDict:
         return ContourModel.decode_tsl(v)
 
     @validator("eq2", pre=True)
-    def parse_eq2(cls, v: list[str]) -> JsonDict:  # noqa: N805
+    def parse_eq2(cls, v: list[str]) -> JsonDict:
         return EqModel.decode_tsl(v)
 
 
@@ -521,8 +516,8 @@ class TslModel(TslBaseModel):
         return TslModel(**values)
 
     @validator("device")
-    def validate_device(cls, v: str) -> str:  # noqa: N805
+    def validate_device(cls, v: str) -> str:
         if v != "KATANA MkII":
-            raise ValueError(f"Unsupported device: {v}")
+            raise UnsupportedDeviceError(v)
 
         return v

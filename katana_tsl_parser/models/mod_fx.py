@@ -51,7 +51,7 @@ class TWahModel(TslBaseModel):
     def decode_tsl(cls, values: list[str]) -> JsonDict:
         cls._expect_size(values)
 
-        res = {
+        return {
             "mode": i(values[0]),
             "polarity": i(values[1]),
             "sens": i(values[2]),
@@ -60,8 +60,6 @@ class TWahModel(TslBaseModel):
             "direct_mix": i(values[5]),
             "level": i(values[6]),
         }
-
-        return res
 
 
 class AutoWahModel(TslBaseModel):
@@ -77,7 +75,7 @@ class AutoWahModel(TslBaseModel):
     def decode_tsl(cls, values: list[str]) -> JsonDict:
         cls._expect_size(values)
 
-        res = {
+        return {
             "mode": i(values[0]),
             "frequency": i(values[1]),
             "peak": i(values[2]),
@@ -86,8 +84,6 @@ class AutoWahModel(TslBaseModel):
             "direct_mix": i(values[5]),
             "level": i(values[6]),
         }
-
-        return res
 
 
 class PedalWahModel(TslBaseModel):
@@ -102,7 +98,7 @@ class PedalWahModel(TslBaseModel):
     def decode_tsl(cls, values: list[str]) -> JsonDict:
         cls._expect_size(values)
 
-        res = {
+        return {
             "type_": i(values[0]),
             "pedal_pos": i(values[1]),
             "pedal_min": i(values[2]),
@@ -110,8 +106,6 @@ class PedalWahModel(TslBaseModel):
             "level": i(values[4]),
             "direct_mix": i(values[5]),
         }
-
-        return res
 
 
 class CompressorModel(TslBaseModel):
@@ -125,15 +119,13 @@ class CompressorModel(TslBaseModel):
     def decode_tsl(cls, values: list[str]) -> JsonDict:
         cls._expect_size(values)
 
-        res = {
+        return {
             "type_": CompressorType(i(values[0])),
             "sustain": i(values[1]),
             "attack": i(values[2]),
             "tone": i(values[3]) - 50,
             "level": i(values[4]),
         }
-
-        return res
 
 
 class LimiterModel(TslBaseModel):
@@ -148,7 +140,7 @@ class LimiterModel(TslBaseModel):
     def decode_tsl(cls, values: list[str]) -> JsonDict:
         cls._expect_size(values)
 
-        res = {
+        return {
             "type_": LimiterType(i(values[0])),
             "attack": i(values[1]),
             "threshold": i(values[2]),
@@ -156,8 +148,6 @@ class LimiterModel(TslBaseModel):
             "release": i(values[4]),
             "level": i(values[5]),
         }
-
-        return res
 
 
 class GraphicEqModel(TslBaseModel):
@@ -177,7 +167,7 @@ class GraphicEqModel(TslBaseModel):
     def decode_tsl(cls, values: list[str]) -> JsonDict:
         cls._expect_size(values)
 
-        res = {
+        return {
             "bar_31": Gain20dB.parse(values[0]),
             "bar_62": Gain20dB.parse(values[1]),
             "bar_125": Gain20dB.parse(values[2]),
@@ -190,8 +180,6 @@ class GraphicEqModel(TslBaseModel):
             "bar_16000": Gain20dB.parse(values[9]),
             "bar_level": Gain20dB.parse(values[10]),
         }
-
-        return res
 
 
 class ParametricEqModel(TslBaseModel):
@@ -211,7 +199,7 @@ class ParametricEqModel(TslBaseModel):
     def decode_tsl(cls, values: list[str]) -> JsonDict:
         cls._expect_size(values)
 
-        res = {
+        return {
             "low_cut": i(values[0]),
             "low_gain": Gain20dB.parse(values[1]),
             "low_mid_freq": i(values[2]),
@@ -225,8 +213,6 @@ class ParametricEqModel(TslBaseModel):
             "level": Gain20dB.parse(values[10]),
         }
 
-        return res
-
 
 class GuitarSimModel(TslBaseModel):
     type_: GuitarSimType
@@ -239,15 +225,13 @@ class GuitarSimModel(TslBaseModel):
     def decode_tsl(cls, values: list[str]) -> JsonDict:
         cls._expect_size(values)
 
-        res = {
+        return {
             "type_": i(values[0]),
             "low": i(values[1]) - 50,
             "high": i(values[2]) - 50,
             "level": i(values[3]),
             "body": i(values[4]),
         }
-
-        return res
 
 
 class SlowGearModel(TslBaseModel):
@@ -259,13 +243,11 @@ class SlowGearModel(TslBaseModel):
     def decode_tsl(cls, values: list[str]) -> JsonDict:
         cls._expect_size(values)
 
-        res = {
+        return {
             "sens": i(values[0]),
             "rise_time": i(values[1]),
             "level": i(values[2]),
         }
-
-        return res
 
 
 class WaveSynthModel(TslBaseModel):
@@ -282,7 +264,7 @@ class WaveSynthModel(TslBaseModel):
     def decode_tsl(cls, values: list[str]) -> JsonDict:
         cls._expect_size(values)
 
-        res = {
+        return {
             "type_": i(values[0]),
             "cutoff": i(values[1]),
             "resonance": i(values[2]),
@@ -292,8 +274,6 @@ class WaveSynthModel(TslBaseModel):
             "level": i(values[6]),
             "direct_mix": i(values[7]),
         }
-
-        return res
 
 
 class OctaveModel(TslBaseModel):
@@ -305,13 +285,11 @@ class OctaveModel(TslBaseModel):
     def decode_tsl(cls, values: list[str]) -> JsonDict:
         cls._expect_size(values)
 
-        res = {
+        return {
             "range_": i(values[0]) + 1,
             "level": i(values[1]),
             "direct_mix": i(values[2]),
         }
-
-        return res
 
 
 class PitchShifterModel(TslBaseModel):
@@ -331,10 +309,9 @@ class PitchShifterModel(TslBaseModel):
 
     @classmethod
     def decode_tsl(cls, values: list[str]) -> JsonDict:
-        if len(values) != 15:
-            raise ValueError(f"must contain exactly 15 items, not {len(values)}")
+        cls._expect_size(values, 15)
 
-        res = {
+        return {
             "voice": i(values[0]),
             "ps1_mode": i(values[1]),
             "ps1_pitch": Pitch.parse(values[2]),
@@ -349,8 +326,6 @@ class PitchShifterModel(TslBaseModel):
             "ps1_feedback": i(values[13]),
             "direct_mix": i(values[14]),
         }
-
-        return res
 
 
 class HarmonistUserSettings(TslBaseModel):
@@ -371,7 +346,7 @@ class HarmonistUserSettings(TslBaseModel):
     def decode_tsl(cls, values: list[str]) -> JsonDict:
         cls._expect_size(values)
 
-        res = {
+        return {
             "e": Pitch.parse(values[0]),
             "f": Pitch.parse(values[1]),
             "f_sharp": Pitch.parse(values[2]),
@@ -385,8 +360,6 @@ class HarmonistUserSettings(TslBaseModel):
             "d": Pitch.parse(values[10]),
             "e_flat": Pitch.parse(values[11]),
         }
-
-        return res
 
 
 class HarmonistModel(TslBaseModel):
@@ -404,10 +377,9 @@ class HarmonistModel(TslBaseModel):
 
     @classmethod
     def decode_tsl(cls, values: list[str]) -> JsonDict:
-        if len(values) != 35:
-            raise ValueError(f"must contain exactly 35 items, not {len(values)}")
+        cls._expect_size(values, 35)
 
-        res = {
+        return {
             "voice": i(values[0]),
             "hr1_mode": Harmony(i(values[1])),
             "hr1_pre_delay": decode_delay_time(values[2:4]),
@@ -420,8 +392,6 @@ class HarmonistModel(TslBaseModel):
             "hr1_user": HarmonistUserSettings.decode_tsl(values[11:23]),
             "hr2_user": HarmonistUserSettings.decode_tsl(values[23:35]),
         }
-
-        return res
 
 
 class AcProcessorModel(TslBaseModel):
@@ -437,7 +407,7 @@ class AcProcessorModel(TslBaseModel):
     def decode_tsl(cls, values: list[str]) -> JsonDict:
         cls._expect_size(values)
 
-        res = {
+        return {
             "type_": i(values[0]),
             "bass": i(values[1]) - 50,
             "middle": i(values[2]) - 50,
@@ -446,8 +416,6 @@ class AcProcessorModel(TslBaseModel):
             "presence": i(values[5]) - 50,
             "level": i(values[6]),
         }
-
-        return res
 
 
 class PhaserModel(TslBaseModel):
@@ -464,7 +432,7 @@ class PhaserModel(TslBaseModel):
     def decode_tsl(cls, values: list[str]) -> JsonDict:
         cls._expect_size(values)
 
-        res = {
+        return {
             "type_": i(values[0]),
             "rate": i(values[1]),
             "depth": i(values[2]),
@@ -474,8 +442,6 @@ class PhaserModel(TslBaseModel):
             "direct_mix": i(values[6]),
             "level": i(values[7]),
         }
-
-        return res
 
 
 class FlangerModel(TslBaseModel):
@@ -491,7 +457,7 @@ class FlangerModel(TslBaseModel):
     def decode_tsl(cls, values: list[str]) -> JsonDict:
         cls._expect_size(values)
 
-        res = {
+        return {
             "rate": i(values[0]),
             "depth": i(values[1]),
             "manual": i(values[2]),
@@ -500,8 +466,6 @@ class FlangerModel(TslBaseModel):
             "direct_mix": i(values[5]),
             "level": i(values[6]),
         }
-
-        return res
 
 
 class TremoloModel(TslBaseModel):
@@ -514,14 +478,12 @@ class TremoloModel(TslBaseModel):
     def decode_tsl(cls, values: list[str]) -> JsonDict:
         cls._expect_size(values)
 
-        res = {
+        return {
             "wave_shape": i(values[0]),
             "rate": i(values[1]),
             "depth": i(values[2]),
             "level": i(values[3]),
         }
-
-        return res
 
 
 class RotaryModel(TslBaseModel):
@@ -531,16 +493,14 @@ class RotaryModel(TslBaseModel):
 
     @classmethod
     def decode_tsl(cls, values: list[str]) -> JsonDict:
-        if len(values) != 5:
-            raise ValueError(f"must contain exactly 5 items, not {len(values)}")
+        cls._expect_size(values, 5)
 
-        res = {
+        return {
             "rate": i(values[0]),
+            # TODO: 1-2
             "depth": i(values[3]),
             "level": i(values[4]),
         }
-
-        return res
 
 
 class UniVModel(TslBaseModel):
@@ -552,13 +512,11 @@ class UniVModel(TslBaseModel):
     def decode_tsl(cls, values: list[str]) -> JsonDict:
         cls._expect_size(values)
 
-        res = {
+        return {
             "rate": i(values[0]),
             "depth": i(values[1]),
             "level": i(values[2]),
         }
-
-        return res
 
 
 class SlicerModel(TslBaseModel):
@@ -572,15 +530,13 @@ class SlicerModel(TslBaseModel):
     def decode_tsl(cls, values: list[str]) -> JsonDict:
         cls._expect_size(values)
 
-        res = {
+        return {
             "pattern": i(values[0]) + 1,
             "rate": i(values[1]),
             "trigger_sens": i(values[2]),
             "level": i(values[3]),
             "direct_mix": i(values[4]),
         }
-
-        return res
 
 
 class VibratoModel(TslBaseModel):
@@ -590,16 +546,14 @@ class VibratoModel(TslBaseModel):
 
     @classmethod
     def decode_tsl(cls, values: list[str]) -> JsonDict:
-        if len(values) != 5:
-            raise ValueError(f"must contain exactly 5 items, not {len(values)}")
+        cls._expect_size(values, 5)
 
-        res = {
+        return {
             "rate": i(values[0]),
+            # TODO: 1-2
             "depth": i(values[1]),
             "level": i(values[4]),
         }
-
-        return res
 
 
 class RingModModel(TslBaseModel):
@@ -612,14 +566,12 @@ class RingModModel(TslBaseModel):
     def decode_tsl(cls, values: list[str]) -> JsonDict:
         cls._expect_size(values)
 
-        res = {
+        return {
             "type_": i(values[0]),
             "frequency": i(values[1]),
             "level": i(values[2]),
             "direct_mix": i(values[3]),
         }
-
-        return res
 
 
 class HumanizerModel(TslBaseModel):
@@ -636,7 +588,7 @@ class HumanizerModel(TslBaseModel):
     def decode_tsl(cls, values: list[str]) -> JsonDict:
         cls._expect_size(values)
 
-        res = {
+        return {
             "mode": i(values[0]),
             "vowel1": i(values[1]),
             "vowel2": i(values[2]),
@@ -646,8 +598,6 @@ class HumanizerModel(TslBaseModel):
             "manual": i(values[6]),
             "level": i(values[7]),
         }
-
-        return res
 
 
 class ChorusModel(TslBaseModel):
@@ -666,7 +616,7 @@ class ChorusModel(TslBaseModel):
     def decode_tsl(cls, values: list[str]) -> JsonDict:
         cls._expect_size(values)
 
-        res = {
+        return {
             "crossover_frequency": i(values[0]),
             "low_rate": i(values[1]),
             "low_depth": i(values[2]),
@@ -679,8 +629,6 @@ class ChorusModel(TslBaseModel):
             "direct_mix": i(values[9]),
         }
 
-        return res
-
 
 class AcGuitarSimModel(TslBaseModel):
     body: Percent
@@ -690,17 +638,15 @@ class AcGuitarSimModel(TslBaseModel):
 
     @classmethod
     def decode_tsl(cls, values: list[str]) -> JsonDict:
-        if len(values) != 5:
-            raise ValueError(f"must contain exactly 5 items, not {len(values)}")
+        cls._expect_size(values, 5)
 
-        res = {
+        return {
             "high": i(values[0]) - 50,
             "body": i(values[1]),
             "low": i(values[2]) - 50,
+            # TODO: 3
             "level": i(values[4]),
         }
-
-        return res
 
 
 class Phaser90EModel(TslBaseModel):
@@ -711,12 +657,10 @@ class Phaser90EModel(TslBaseModel):
     def decode_tsl(cls, values: list[str]) -> JsonDict:
         cls._expect_size(values)
 
-        res = {
+        return {
             "script_on": i(values[0]) > 0,
             "speed": i(values[1]),
         }
-
-        return res
 
 
 class Flanger117EModel(TslBaseModel):
@@ -729,14 +673,12 @@ class Flanger117EModel(TslBaseModel):
     def decode_tsl(cls, values: list[str]) -> JsonDict:
         cls._expect_size(values)
 
-        res = {
+        return {
             "manual": i(values[0]),
             "width": i(values[1]),
             "speed": i(values[2]),
             "regen": i(values[3]),
         }
-
-        return res
 
 
 class Wah95EModel(TslBaseModel):
@@ -750,15 +692,13 @@ class Wah95EModel(TslBaseModel):
     def decode_tsl(cls, values: list[str]) -> JsonDict:
         cls._expect_size(values)
 
-        res = {
+        return {
             "pedal_pos": i(values[0]),
             "pedal_min": i(values[1]),
             "pedal_max": i(values[2]),
             "level": i(values[3]),
             "direct_mix": i(values[4]),
         }
-
-        return res
 
 
 class DelayChorus30Model(TslBaseModel):
@@ -775,7 +715,7 @@ class DelayChorus30Model(TslBaseModel):
     def decode_tsl(cls, values: list[str]) -> JsonDict:
         cls._expect_size(values, len(cls._get_fields()) + 1)
 
-        res = {
+        return {
             "type_": i(values[0]),
             "chorus_intensity": i(values[2]),
             "echo_repeat_rate": decode_delay_time(values[3:5]),
@@ -785,8 +725,6 @@ class DelayChorus30Model(TslBaseModel):
             "input_volume": i(values[1]),
             "output": i(values[8]),
         }
-
-        return res
 
 
 class HeavyOctaveModel(TslBaseModel):
@@ -798,13 +736,11 @@ class HeavyOctaveModel(TslBaseModel):
     def decode_tsl(cls, values: list[str]) -> JsonDict:
         cls._expect_size(values)
 
-        res = {
+        return {
             "level_1_oct": i(values[0]),
             "level_2_oct": i(values[1]),
             "direct_mix": i(values[2]),
         }
-
-        return res
 
 
 class PedalBendModel(TslBaseModel):
@@ -817,14 +753,12 @@ class PedalBendModel(TslBaseModel):
     def decode_tsl(cls, values: list[str]) -> JsonDict:
         cls._expect_size(values)
 
-        res = {
+        return {
             "pitch": Pitch.parse(values[0]),
             "pedal_pos": i(values[1]),
             "level": i(values[2]),
             "direct_mix": i(values[3]),
         }
-
-        return res
 
 
 class FxModel(TslBaseModel):
@@ -864,8 +798,7 @@ class FxModel(TslBaseModel):
 
     @classmethod
     def decode_tsl(cls, values: list[str]) -> JsonDict:
-        if len(values) not in (221, 225):
-            raise ValueError(f"must contain exactly 225 items, not {len(values)}")
+        cls._expect_size(values, (221, 225))
 
         res = {
             "on": i(values[0]) > 0,

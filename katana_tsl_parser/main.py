@@ -1,6 +1,5 @@
 #! /usr/bin/env python
 import json
-import os.path
 import sys
 from copy import deepcopy
 from pathlib import Path
@@ -12,11 +11,13 @@ from katana_tsl_parser.models import TslModel
 root = Path(__file__).parent.parent
 
 if len(sys.argv) != 2:
-    raise ValueError(f"Usage: {sys.argv[0]} tsl-file")
+    # EM102 Exception must not use an f-string literal, assign to variable first
+    # TRY003: Avoid specifying long messages outside the exception class
+    raise ValueError(f"Usage: {sys.argv[0]} tsl-file")  # noqa: EM102, TRY003
 
 
-def print_file_content(f: str) -> None:
-    tsl = TslModel.parse_file(os.path.expanduser(f))
+def print_file_content(f: Path) -> None:
+    tsl = TslModel.parse_file(f.expanduser())
 
     for d in tsl.data:
         for _, p in enumerate(d):
@@ -25,7 +26,9 @@ def print_file_content(f: str) -> None:
 
 def encode_name(name: str) -> list[str]:
     if len(name) > 16:
-        raise ValueError("Name too long")
+        # EM101: Exception must not use a string literal, assign to variable first
+        # TRY003: Avoid specifying long messages outside the exception class
+        raise ValueError("Name too long")  # noqa: EM101, TRY003
 
     return [f"{ord(c):02x}" for c in name] + ["20"] * (16 - len(name))
 
@@ -54,4 +57,4 @@ def update_some_values(f: str) -> None:
     Path("patches.tsl").write_text(json.dumps(tsl))
 
 
-print_file_content(sys.argv[1])
+print_file_content(Path(sys.argv[1]))
