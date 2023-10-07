@@ -837,7 +837,7 @@ class FxModel(TslBaseModel):
             "heavy_octave": HeavyOctaveModel.decode_tsl(values[218:221]),
         }
 
-        if len(values) == 225:
+        if len(values) == 225:  # noqa: PLR2004
             res["pedal_bend"] = PedalBendModel.decode_tsl(values[221:])
 
         return res

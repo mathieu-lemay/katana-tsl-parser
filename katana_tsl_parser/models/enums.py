@@ -6,7 +6,7 @@ class _DescIntEnum(IntEnum):
 
     def __new__(cls, value: int, description: str = "") -> "_DescIntEnum":
         obj = int.__new__(cls, value)
-        obj._value_ = value  # noqa: SLF001 Private member accessed: `_value_`
+        obj._value_ = value
         obj.description = description
 
         return obj

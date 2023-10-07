@@ -40,6 +40,8 @@ from .types import (
     i,
 )
 
+MAX_NAME_LENGTH = 16
+
 
 class EqModel(TslBaseModel):
     on: bool
@@ -221,7 +223,7 @@ class Patch1Model(TslBaseModel):
             "master_key": Key(i(values[49])),
         }
 
-        if len(values) == 91:
+        if len(values) == 91:  # noqa: PLR2004
             res.update(
                 {
                     "solo_on": i(values[84]) > 0,
@@ -414,13 +416,13 @@ class ParamSetModel(TslBaseModel):
     patch2: Patch2Model = Field(alias="UserPatch%Patch_2")
     # status: list[str] = Field(alias="UserPatch%Status")  # noqa: ERA001
     # knob_assign: list[str] = Field(alias="UserPatch%KnobAsgn")  # noqa: ERA001
-    # expression_pedal_assign: list[str] = Field(alias="UserPatch%ExpPedalAsgn")  # noqa: ERA001
-    # expression_pedal_min_max: list[str] = Field(alias="UserPatch%ExpPedalAsgnMinMax")  # noqa: ERA001
-    # gafc_expression1_assign: list[str] = Field(alias="UserPatch%GafcExp1Asgn")  # noqa: ERA001
-    # gafc_expression1_min_max: list[str] = Field(alias="UserPatch%GafcExp1AsgnMinMax")  # noqa: ERA001
-    # gafc_expression2_assign: list[str] = Field(alias="UserPatch%GafcExp2Asgn")  # noqa: ERA001
-    # gafc_expression2_min_max: list[str] = Field(alias="UserPatch%GafcExp2AsgnMinMax")  # noqa: ERA001
-    # footswitch_assign: list[str] | None = Field(alias="UserPatch%FsAsgn")  # noqa: ERA001
+    # expression_pedal_assign: list[str] = Field(alias="UserPatch%ExpPedalAsgn")  # noqa: ERA001, E501
+    # expression_pedal_min_max: list[str] = Field(alias="UserPatch%ExpPedalAsgnMinMax")  # noqa: ERA001, E501
+    # gafc_expression1_assign: list[str] = Field(alias="UserPatch%GafcExp1Asgn")  # noqa: ERA001, E501
+    # gafc_expression1_min_max: list[str] = Field(alias="UserPatch%GafcExp1AsgnMinMax")  # noqa: ERA001, E501
+    # gafc_expression2_assign: list[str] = Field(alias="UserPatch%GafcExp2Asgn")  # noqa: ERA001, E501
+    # gafc_expression2_min_max: list[str] = Field(alias="UserPatch%GafcExp2AsgnMinMax")  # noqa: ERA001, E501
+    # footswitch_assign: list[str] | None = Field(alias="UserPatch%FsAsgn")  # noqa: ERA001, E501
     patch_mk2v2: PatchMk2v2Model | None = Field(alias="UserPatch%Patch_Mk2V2")
     contour1: ContourModel | None = Field(alias="UserPatch%Contour(1)")
     contour2: ContourModel | None = Field(alias="UserPatch%Contour(2)")
@@ -434,7 +436,7 @@ class ParamSetModel(TslBaseModel):
         if isinstance(v, list):
             v = "".join([chr(int(i, 16)) for i in v])
 
-        if len(v) > 16:
+        if len(v) > MAX_NAME_LENGTH:
             raise NameTooLongError(len(v))
 
         return v.rstrip()

@@ -39,7 +39,9 @@ class TslBaseModel(BaseModel):
         return set(cls.schema(by_alias=by_alias)["properties"].keys())
 
     @classmethod
-    def _expect_size(cls, values: list[Any], expected: Sequence[int] | int | None = None) -> None:
+    def _expect_size(
+        cls, values: list[Any], expected: Sequence[int] | int | None = None
+    ) -> None:
         size = len(values)
         if isinstance(expected, Sequence):
             if size not in expected:

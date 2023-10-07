@@ -7,10 +7,12 @@ from pathlib import Path
 from devtools import debug
 
 from katana_tsl_parser.models import TslModel
+from katana_tsl_parser.models.tsl import MAX_NAME_LENGTH
 
 root = Path(__file__).parent.parent
 
-if len(sys.argv) != 2:
+
+if len(sys.argv) != 2:  # noqa: PLR2004: Magic value. Replace with proper cli.
     # EM102 Exception must not use an f-string literal, assign to variable first
     # TRY003: Avoid specifying long messages outside the exception class
     raise ValueError(f"Usage: {sys.argv[0]} tsl-file")  # noqa: EM102, TRY003
@@ -25,7 +27,7 @@ def print_file_content(f: Path) -> None:
 
 
 def encode_name(name: str) -> list[str]:
-    if len(name) > 16:
+    if len(name) > MAX_NAME_LENGTH:
         # EM101: Exception must not use a string literal, assign to variable first
         # TRY003: Avoid specifying long messages outside the exception class
         raise ValueError("Name too long")  # noqa: EM101, TRY003
