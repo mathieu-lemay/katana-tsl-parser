@@ -794,7 +794,7 @@ class FxModel(TslBaseModel):
     wah_95e: Wah95EModel
     dc30: DelayChorus30Model
     heavy_octave: HeavyOctaveModel
-    pedal_bend: PedalBendModel | None
+    pedal_bend: PedalBendModel | None = None
 
     @classmethod
     def decode_tsl(cls, values: list[str]) -> JsonDict:

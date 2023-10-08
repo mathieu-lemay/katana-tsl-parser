@@ -1,4 +1,4 @@
-from pydantic import Extra, Field, validator
+from pydantic import ConfigDict, Extra, Field, field_validator
 
 from katana_tsl_parser.errors import (
     InvalidContourValuesError,
@@ -401,9 +401,7 @@ class ContourModel(TslBaseModel):
 
 
 class ParamSetModel(TslBaseModel):
-    class Config:
-        allow_population_by_field_name = True
-        extra = Extra.ignore
+    model_config = ConfigDict(populate_by_name=True, extra=Extra.ignore)
 
     name: str = Field(alias="UserPatch%PatchName")
     patch0: Patch0Model = Field(alias="UserPatch%Patch_0")
@@ -423,15 +421,17 @@ class ParamSetModel(TslBaseModel):
     # gafc_expression2_assign: list[str] = Field(alias="UserPatch%GafcExp2Asgn")  # noqa: ERA001, E501
     # gafc_expression2_min_max: list[str] = Field(alias="UserPatch%GafcExp2AsgnMinMax")  # noqa: ERA001, E501
     # footswitch_assign: list[str] | None = Field(alias="UserPatch%FsAsgn")  # noqa: ERA001, E501
-    patch_mk2v2: PatchMk2v2Model | None = Field(alias="UserPatch%Patch_Mk2V2")
-    contour1: ContourModel | None = Field(alias="UserPatch%Contour(1)")
-    contour2: ContourModel | None = Field(alias="UserPatch%Contour(2)")
-    contour3: ContourModel | None = Field(alias="UserPatch%Contour(3)")
+    patch_mk2v2: PatchMk2v2Model | None = Field(
+        alias="UserPatch%Patch_Mk2V2", default=None
+    )
+    contour1: ContourModel | None = Field(alias="UserPatch%Contour(1)", default=None)
+    contour2: ContourModel | None = Field(alias="UserPatch%Contour(2)", default=None)
+    contour3: ContourModel | None = Field(alias="UserPatch%Contour(3)", default=None)
     eq2: EqModel = Field(alias="UserPatch%Eq(2)")
 
     # TODO: Move all the validators to parse_tsl and add Version enum
 
-    @validator("name", pre=True)
+    @field_validator("name", mode="before")
     def validate_name(cls, v: str | list[str]) -> str:
         if isinstance(v, list):
             v = "".join([chr(int(i, 16)) for i in v])
@@ -441,51 +441,51 @@ class ParamSetModel(TslBaseModel):
 
         return v.rstrip()
 
-    @validator("fx1", pre=True)
+    @field_validator("fx1", mode="before")
     def parse_fx1(cls, v: list[str]) -> JsonDict:
         return FxModel.decode_tsl(v)
 
-    @validator("fx2", pre=True)
+    @field_validator("fx2", mode="before")
     def parse_fx2(cls, v: list[str]) -> JsonDict:
         return FxModel.decode_tsl(v)
 
-    @validator("delay1", pre=True)
+    @field_validator("delay1", mode="before")
     def parse_delay1(cls, v: list[str]) -> JsonDict:
         return DelayModel.decode_tsl(v)
 
-    @validator("delay2", pre=True)
+    @field_validator("delay2", mode="before")
     def parse_delay2(cls, v: list[str]) -> JsonDict:
         return DelayModel.decode_tsl(v)
 
-    @validator("patch0", pre=True)
+    @field_validator("patch0", mode="before")
     def parse_patch0(cls, v: list[str]) -> JsonDict:
         return Patch0Model.decode_tsl(v)
 
-    @validator("patch1", pre=True)
+    @field_validator("patch1", mode="before")
     def parse_patch1(cls, v: list[str]) -> JsonDict:
         return Patch1Model.decode_tsl(v)
 
-    @validator("patch2", pre=True)
+    @field_validator("patch2", mode="before")
     def parse_patch2(cls, v: list[str]) -> JsonDict:
         return Patch2Model.decode_tsl(v)
 
-    @validator("patch_mk2v2", pre=True)
+    @field_validator("patch_mk2v2", mode="before")
     def parse_patch_mk2v2(cls, v: list[str]) -> JsonDict:
         return PatchMk2v2Model.decode_tsl(v)
 
-    @validator("contour1", pre=True)
+    @field_validator("contour1", mode="before")
     def parse_contour1(cls, v: list[str]) -> JsonDict:
         return ContourModel.decode_tsl(v)
 
-    @validator("contour2", pre=True)
+    @field_validator("contour2", mode="before")
     def parse_contour2(cls, v: list[str]) -> JsonDict:
         return ContourModel.decode_tsl(v)
 
-    @validator("contour3", pre=True)
+    @field_validator("contour3", mode="before")
     def parse_contour3(cls, v: list[str]) -> JsonDict:
         return ContourModel.decode_tsl(v)
 
-    @validator("eq2", pre=True)
+    @field_validator("eq2", mode="before")
     def parse_eq2(cls, v: list[str]) -> JsonDict:
         return EqModel.decode_tsl(v)
 
@@ -497,7 +497,7 @@ class MemoModel(TslBaseModel):
 
 
 class PatchModel(TslBaseModel):
-    memo: MemoModel | str | None
+    memo: MemoModel | str | None = None
     param_set: ParamSetModel = Field(alias="paramSet")
 
     @classmethod
@@ -518,7 +518,7 @@ class TslModel(TslBaseModel):
 
         return TslModel(**values)
 
-    @validator("device")
+    @field_validator("device")
     def validate_device(cls, v: str) -> str:
         if v != "KATANA MkII":
             raise UnsupportedDeviceError(v)

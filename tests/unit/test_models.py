@@ -18,7 +18,7 @@ def test_parse_model_v1(snapshots_folder: Path) -> None:
     with (snapshots_folder / "factory_v1.json").open() as f:
         expected = json.load(f)
 
-    assert tsl_model.dict() == expected
+    assert tsl_model.model_dump() == expected
 
 
 def test_parse_model_v2_temp(snapshots_folder: Path) -> None:
@@ -28,4 +28,4 @@ def test_parse_model_v2_temp(snapshots_folder: Path) -> None:
     with (snapshots_folder / "temp_v2.json").open() as f:
         expected = json.load(f)
 
-    assert tsl_model.dict() == expected
+    assert tsl_model.model_dump() == expected

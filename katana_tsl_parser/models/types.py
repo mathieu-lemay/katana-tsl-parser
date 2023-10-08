@@ -1,7 +1,15 @@
-from collections.abc import Callable, Generator, Sequence
-from typing import Any, cast
+from collections.abc import Sequence
+from typing import Annotated, Any, cast
 
-from pydantic import BaseModel, ConstrainedFloat, ConstrainedInt, Extra, PrivateAttr
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Extra,
+    Field,
+    GetCoreSchemaHandler,
+    PrivateAttr,
+)
+from pydantic_core import CoreSchema, core_schema
 
 from katana_tsl_parser.errors import InvalidQValueError, InvalidValueListLengthError
 
@@ -22,17 +30,16 @@ def decode_delay_time(values: list[str]) -> int:
 
 
 class TslBaseModel(BaseModel):
-    _raw: list[str] | None = PrivateAttr()
-
-    class Config:
-        allow_population_by_field_name = True
-        extra = Extra.forbid
+    model_config = ConfigDict(populate_by_name=True, extra=Extra.forbid)
+    _raw: list[str] | None = PrivateAttr(None)
 
     def __init__(self, **data: JsonDict) -> None:
-        if "_raw" in data:
-            self._raw = cast(list[str], data.pop("_raw"))
+        _raw = data.pop("_raw", None)
 
         super().__init__(**data)
+
+        if _raw:
+            self._raw = cast(list[str], _raw)
 
     @classmethod
     def _get_fields(cls, *, by_alias: bool = False) -> set[str]:
@@ -54,14 +61,15 @@ class TslBaseModel(BaseModel):
             raise InvalidValueListLengthError(size, expected)
 
 
-class Percent(ConstrainedInt):
-    ge = 0
-    le = 100
+Percent = Annotated[int, Field(ge=0, le=100)]
 
 
-class ToggleablePercent(ConstrainedInt):
-    ge = 0
-    le = 101
+class ToggleablePercentImpl(int):
+    @classmethod
+    def __get_pydantic_core_schema__(
+        cls, source_type: Any, handler: GetCoreSchemaHandler  # noqa: ANN401
+    ) -> CoreSchema:
+        return core_schema.no_info_after_validator_function(cls, handler(int))
 
     def __repr__(self) -> str:
         if self == 0:
@@ -70,38 +78,62 @@ class ToggleablePercent(ConstrainedInt):
         return f"On<{self - 1}>"
 
 
-class Gain12dB(ConstrainedFloat):
-    ge = -12.0
-    le = 12.0
-    multiple_of = 0.5
+ToggleablePercent = Annotated[ToggleablePercentImpl, Field(ge=0, le=101)]
+
+
+class Gain12dBImpl(float):
+    @classmethod
+    def __get_pydantic_core_schema__(
+        cls, source_type: Any, handler: GetCoreSchemaHandler  # noqa: ANN401
+    ) -> CoreSchema:
+        return core_schema.no_info_after_validator_function(cls, handler(float))
 
     @classmethod
     def parse(cls, v: str) -> "Gain12dB":
         return cls((i(v) - 24) * 0.5)
 
 
-class Gain20dB(ConstrainedInt):
-    ge = -20
-    le = 20
+Gain12dB = Annotated[Gain12dBImpl, Field(ge=-12.0, le=12.0, multiple_of=0.5)]
+
+
+class Gain20dBImpl(int):
+    @classmethod
+    def __get_pydantic_core_schema__(
+        cls, source_type: Any, handler: GetCoreSchemaHandler  # noqa: ANN401
+    ) -> CoreSchema:
+        return core_schema.no_info_after_validator_function(cls, handler(int))
 
     @classmethod
     def parse(cls, v: str) -> "Gain20dB":
         return cls(i(v) - 20)
 
 
-class Pitch(ConstrainedInt):
-    ge = -24
-    le = 24
+Gain20dB = Annotated[Gain20dBImpl, Field(ge=-20, le=20)]
+
+
+class PitchImpl(int):
+    @classmethod
+    def __get_pydantic_core_schema__(
+        cls, source_type: Any, handler: GetCoreSchemaHandler  # noqa: ANN401
+    ) -> CoreSchema:
+        return core_schema.no_info_after_validator_function(cls, handler(int))
 
     @classmethod
     def parse(cls, v: str) -> "Pitch":
         return cls(i(v) - 24)
 
 
+Pitch = Annotated[PitchImpl, Field(ge=-24, le=24)]
+
+
 class Q(float):
     @classmethod
-    def __get_validators__(cls) -> Generator[Callable[[float], float], None, None]:
-        yield cls.validate
+    def __get_pydantic_core_schema__(
+        cls, source_type: Any, handler: GetCoreSchemaHandler  # noqa: ANN401
+    ) -> CoreSchema:
+        return core_schema.no_info_after_validator_function(
+            cls.validate, handler(float)
+        )
 
     @classmethod
     def parse(cls, v: str) -> "Q":
