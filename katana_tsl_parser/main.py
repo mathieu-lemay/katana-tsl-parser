@@ -1,4 +1,5 @@
 #! /usr/bin/env python
+import itertools
 import json
 import sys
 from copy import deepcopy
@@ -7,7 +8,7 @@ from pathlib import Path
 from devtools import debug
 
 from katana_tsl_parser.models import TslModel
-from katana_tsl_parser.models.tsl import MAX_NAME_LENGTH
+from katana_tsl_parser.models.tsl import MAX_NAME_LENGTH, PatchModel
 
 root = Path(__file__).parent.parent
 
@@ -19,11 +20,12 @@ if len(sys.argv) != 2:  # noqa: PLR2004: Magic value. Replace with proper cli.
 
 
 def print_file_content(f: Path) -> None:
-    tsl = TslModel.parse_file(f.expanduser())
+    tsl = TslModel.model_validate_json(f.read_text())
 
-    for d in tsl.data:
-        for _, p in enumerate(d):
-            debug(p.param_set.contour1)
+    patch: PatchModel
+    for patch in itertools.chain(*tsl.data):
+        debug(patch.param_set.name)
+        debug(patch.param_set.contour1)
 
 
 def encode_name(name: str) -> list[str]:
