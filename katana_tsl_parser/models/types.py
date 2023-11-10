@@ -67,7 +67,9 @@ Percent = Annotated[int, Field(ge=0, le=100)]
 class ToggleablePercentImpl(int):
     @classmethod
     def __get_pydantic_core_schema__(
-        cls, source_type: Any, handler: GetCoreSchemaHandler  # noqa: ANN401
+        cls,
+        source_type: Any,  # noqa: ANN401
+        handler: GetCoreSchemaHandler,
     ) -> CoreSchema:
         return core_schema.no_info_after_validator_function(cls, handler(int))
 
@@ -84,7 +86,9 @@ ToggleablePercent = Annotated[ToggleablePercentImpl, Field(ge=0, le=101)]
 class Gain12dBImpl(float):
     @classmethod
     def __get_pydantic_core_schema__(
-        cls, source_type: Any, handler: GetCoreSchemaHandler  # noqa: ANN401
+        cls,
+        source_type: Any,  # noqa: ANN401
+        handler: GetCoreSchemaHandler,
     ) -> CoreSchema:
         return core_schema.no_info_after_validator_function(cls, handler(float))
 
@@ -99,7 +103,9 @@ Gain12dB = Annotated[Gain12dBImpl, Field(ge=-12.0, le=12.0, multiple_of=0.5)]
 class Gain20dBImpl(int):
     @classmethod
     def __get_pydantic_core_schema__(
-        cls, source_type: Any, handler: GetCoreSchemaHandler  # noqa: ANN401
+        cls,
+        source_type: Any,  # noqa: ANN401
+        handler: GetCoreSchemaHandler,
     ) -> CoreSchema:
         return core_schema.no_info_after_validator_function(cls, handler(int))
 
@@ -114,7 +120,9 @@ Gain20dB = Annotated[Gain20dBImpl, Field(ge=-20, le=20)]
 class PitchImpl(int):
     @classmethod
     def __get_pydantic_core_schema__(
-        cls, source_type: Any, handler: GetCoreSchemaHandler  # noqa: ANN401
+        cls,
+        source_type: Any,  # noqa: ANN401
+        handler: GetCoreSchemaHandler,
     ) -> CoreSchema:
         return core_schema.no_info_after_validator_function(cls, handler(int))
 
@@ -129,7 +137,9 @@ Pitch = Annotated[PitchImpl, Field(ge=-24, le=24)]
 class Q(float):
     @classmethod
     def __get_pydantic_core_schema__(
-        cls, source_type: Any, handler: GetCoreSchemaHandler  # noqa: ANN401
+        cls,
+        source_type: Any,  # noqa: ANN401
+        handler: GetCoreSchemaHandler,
     ) -> CoreSchema:
         return core_schema.no_info_after_validator_function(
             cls.validate, handler(float)
