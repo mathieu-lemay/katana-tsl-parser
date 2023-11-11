@@ -104,7 +104,7 @@ class EqModel(TslBaseModel):
 class Patch0Model(TslBaseModel):
     boost_on: bool
     boost_type: BoostType
-    boost_drive: Percent
+    boost_drive: int = Field(ge=0, le=120)
     boost_bottom: int = Field(ge=-50, le=50)
     boost_tone: int = Field(ge=-50, le=50)
     boost_solo_on: bool
