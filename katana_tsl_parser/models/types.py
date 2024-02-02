@@ -4,7 +4,6 @@ from typing import Annotated, Any, cast
 from pydantic import (
     BaseModel,
     ConfigDict,
-    Extra,
     Field,
     GetCoreSchemaHandler,
     PrivateAttr,
@@ -30,7 +29,7 @@ def decode_delay_time(values: list[str]) -> int:
 
 
 class TslBaseModel(BaseModel):
-    model_config = ConfigDict(populate_by_name=True, extra=Extra.forbid)
+    model_config = ConfigDict(populate_by_name=True, extra="forbid")
     _raw: list[str] | None = PrivateAttr(None)
 
     def __init__(self, **data: JsonDict) -> None:
@@ -43,7 +42,7 @@ class TslBaseModel(BaseModel):
 
     @classmethod
     def _get_fields(cls, *, by_alias: bool = False) -> set[str]:
-        return set(cls.schema(by_alias=by_alias)["properties"].keys())
+        return set(cls.model_json_schema(by_alias=by_alias)["properties"].keys())
 
     @classmethod
     def _expect_size(

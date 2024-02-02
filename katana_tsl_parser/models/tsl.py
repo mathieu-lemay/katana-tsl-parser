@@ -1,4 +1,4 @@
-from pydantic import ConfigDict, Extra, Field, field_validator
+from pydantic import ConfigDict, Field, field_validator
 
 from katana_tsl_parser.errors import (
     InvalidContourValuesError,
@@ -402,7 +402,7 @@ class ContourModel(TslBaseModel):
 
 
 class ParamSetModel(TslBaseModel):
-    model_config = ConfigDict(populate_by_name=True, extra=Extra.ignore)
+    model_config = ConfigDict(populate_by_name=True, extra="ignore")
 
     name: str = Field(alias="UserPatch%PatchName")
     patch0: Patch0Model = Field(alias="UserPatch%Patch_0")
