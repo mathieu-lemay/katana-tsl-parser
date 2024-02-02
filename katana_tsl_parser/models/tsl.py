@@ -494,7 +494,8 @@ class ParamSetModel(TslBaseModel):
 class MemoModel(TslBaseModel):
     memo: str
     is_tone_central_patch: bool = Field(alias="isToneCentralPatch")
-    note: str | None
+    note: str | None = None
+    log_patch_name: str | None = Field(alias="logPatchName", default=None)
 
 
 class PatchModel(TslBaseModel):
