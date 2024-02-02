@@ -17,6 +17,9 @@ mypy = "^1.5.1"
 devtools = { version = "^0.12.0", extras = ["pygments"] }
 pytest-cov = "^4.0.0"
 
+[tool.poetry.scripts]
+tsl-parser = "katana_tsl_parser.main:main"
+
 [tool.mypy]
 namespace_packages = true
 explicit_package_bases = true
@@ -37,6 +40,7 @@ minversion = "7.0"
 testpaths = ["tests"]
 
 [tool.ruff]
+target-version = "py310"
 exclude = [
     ".bzr",
     ".direnv",
@@ -57,6 +61,8 @@ exclude = [
     "node_modules",
     "venv",
 ]
+
+[tool.ruff.lint]
 select = [
     "ALL",
 ]
@@ -73,16 +79,15 @@ ignore = [
 
     #"PLR2004",  # Magic value used in comparison, consider replacing `x` with a constant variable
 ]
-target-version = "py310"
 
-[tool.ruff.pep8-naming]
+[tool.ruff.lint.pep8-naming]
 classmethod-decorators = [
     "classmethod",
     "pydantic.field_validator",
     "pydantic.model_validator",
 ]
 
-[tool.ruff.per-file-ignores]
+[tool.ruff.lint.per-file-ignores]
 "tests/*" = [
     "PLR2004", # Magic value used in comparison
     "S101", # Use of `assert` detected

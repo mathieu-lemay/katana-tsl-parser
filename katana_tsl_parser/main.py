@@ -1,31 +1,13 @@
 #! /usr/bin/env python
-import itertools
 import json
 import sys
 from copy import deepcopy
 from pathlib import Path
 
-from devtools import debug
-
 from katana_tsl_parser.models import TslModel
-from katana_tsl_parser.models.tsl import MAX_NAME_LENGTH, PatchModel
+from katana_tsl_parser.models.tsl import MAX_NAME_LENGTH
 
 root = Path(__file__).parent.parent
-
-
-if len(sys.argv) != 2:  # noqa: PLR2004: Magic value. Replace with proper cli.
-    # EM102 Exception must not use an f-string literal, assign to variable first
-    # TRY003: Avoid specifying long messages outside the exception class
-    raise ValueError(f"Usage: {sys.argv[0]} tsl-file")  # noqa: EM102, TRY003
-
-
-def print_file_content(f: Path) -> None:
-    tsl = TslModel.model_validate_json(f.read_text())
-
-    patch: PatchModel
-    for patch in itertools.chain(*tsl.data):
-        debug(patch.param_set.name)
-        debug(patch.param_set.contour1)
 
 
 def encode_name(name: str) -> list[str]:
@@ -61,4 +43,16 @@ def update_some_values(f: str) -> None:
     Path("patches.tsl").write_text(json.dumps(tsl))
 
 
-print_file_content(Path(sys.argv[1]))
+def main() -> None:
+    if len(sys.argv) != 2:  # noqa: PLR2004: Magic value. Replace with proper cli.
+        # EM102 Exception must not use an f-string literal, assign to variable first
+        # TRY003: Avoid specifying long messages outside the exception class
+        raise ValueError(f"Usage: {sys.argv[0]} tsl-file")  # noqa: EM102, TRY003
+
+    f = Path(sys.argv[1])
+    tsl = TslModel.model_validate_json(f.read_text())
+    print(tsl.model_dump_json(indent=2))  # noqa: T201: print found
+
+
+if __name__ == "__main__":
+    main()

@@ -328,7 +328,8 @@ class PatchMk2v2Model(TslBaseModel):
 
     @classmethod
     def decode_tsl(cls, values: list[str]) -> JsonDict:
-        cls._expect_size(values)
+        # TODO: Figure out 11 to 22
+        cls._expect_size(values, (10, 22))
 
         return {
             "solo_eq_position": i(values[0]),
