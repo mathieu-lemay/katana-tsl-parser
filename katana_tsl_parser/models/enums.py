@@ -53,8 +53,8 @@ class AmpType(IntEnum):
     MS1959I = 0x12
     MS1959I_II = 0x13
     HiGainStack = 0x04
-    RFierVintage = 0x14
-    RFierModern = 0x15
+    RFireVintage = 0x14
+    RFireModern = 0x15
     CoreMetal = 0x07
     Custom = 0x19
 
