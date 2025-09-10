@@ -38,7 +38,7 @@ class TslBaseModel(BaseModel):
         super().__init__(**data)
 
         if _raw:
-            self._raw = cast(list[str], _raw)
+            self._raw = cast("list[str]", _raw)
 
     @classmethod
     def _get_fields(cls, *, by_alias: bool = False) -> set[str]:

@@ -44,14 +44,14 @@ def update_some_values(f: str) -> None:
 
 
 def main() -> None:
-    if len(sys.argv) != 2:  # noqa: PLR2004: Magic value. Replace with proper cli.
+    if len(sys.argv) != 2:  # noqa: PLR2004  # Magic value. Replace with proper cli.
         # EM102 Exception must not use an f-string literal, assign to variable first
         # TRY003: Avoid specifying long messages outside the exception class
         raise ValueError(f"Usage: {sys.argv[0]} tsl-file")  # noqa: EM102, TRY003
 
     f = Path(sys.argv[1])
     tsl = TslModel.model_validate_json(f.read_text())
-    print(tsl.model_dump_json(indent=2))  # noqa: T201: print found
+    print(tsl.model_dump_json(indent=2))  # noqa: T201  # print found
 
 
 if __name__ == "__main__":

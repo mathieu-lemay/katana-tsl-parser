@@ -6,7 +6,7 @@ import pytest
 from katana_tsl_parser.models import TslModel
 
 
-@pytest.fixture()
+@pytest.fixture
 def snapshots_folder() -> Path:
     return Path(__file__).parent / "snapshots"
 
