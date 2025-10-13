@@ -1,13 +1,13 @@
 #! /usr/bin/env python
 import json
-import sys
+import pathlib
 from copy import deepcopy
 from pathlib import Path
 
+import click
+
 from katana_tsl_parser.models import TslModel
 from katana_tsl_parser.models.tsl import MAX_NAME_LENGTH
-
-root = Path(__file__).parent.parent
 
 
 def encode_name(name: str) -> list[str]:
@@ -43,15 +43,20 @@ def update_some_values(f: str) -> None:
     Path("patches.tsl").write_text(json.dumps(tsl))
 
 
-def main() -> None:
-    if len(sys.argv) != 2:  # noqa: PLR2004  # Magic value. Replace with proper cli.
-        # EM102 Exception must not use an f-string literal, assign to variable first
-        # TRY003: Avoid specifying long messages outside the exception class
-        raise ValueError(f"Usage: {sys.argv[0]} tsl-file")  # noqa: EM102, TRY003
+@click.command()
+@click.argument("tsl-file", type=click.Path(exists=True, path_type=pathlib.Path))
+@click.option("-i", "--index", type=click.INT, help="Index of the patch")
+def main(tsl_file: Path, index: int | None) -> None:
+    tsl = TslModel.model_validate_json(tsl_file.read_text())
 
-    f = Path(sys.argv[1])
-    tsl = TslModel.model_validate_json(f.read_text())
-    print(tsl.model_dump_json(indent=2))  # noqa: T201  # print found
+    if index is not None:
+        n = len(tsl.data[0])
+        if index >= n:
+            msg = f"Invalid index: {n}"
+            raise ValueError(msg)
+        click.echo(tsl.data[0][index].model_dump_json(indent=2))
+    else:
+        click.echo(tsl.model_dump_json(indent=2))
 
 
 if __name__ == "__main__":

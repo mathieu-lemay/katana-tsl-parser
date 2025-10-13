@@ -5,7 +5,7 @@ test:
     uv run pytest --verbosity=1
 
 install:
-    uv sync
+    uv sync --all-extras
 
 update: _uv_lock install
 
