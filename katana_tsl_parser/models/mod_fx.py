@@ -32,13 +32,13 @@ from .types import (
     Pitch,
     Q,
     ToggleablePercent,
-    TslBaseModel,
+    TslObject,
     decode_delay_time,
     i,
 )
 
 
-class TWahModel(TslBaseModel):
+class TWahModel(TslObject):
     mode: WahMode
     polarity: Polarity
     sens: Percent
@@ -62,7 +62,7 @@ class TWahModel(TslBaseModel):
         }
 
 
-class AutoWahModel(TslBaseModel):
+class AutoWahModel(TslObject):
     mode: WahMode
     frequency: Percent
     peak: Percent
@@ -86,7 +86,7 @@ class AutoWahModel(TslBaseModel):
         }
 
 
-class PedalWahModel(TslBaseModel):
+class PedalWahModel(TslObject):
     type_: PedalWahType
     pedal_pos: Percent
     pedal_min: Percent
@@ -108,7 +108,7 @@ class PedalWahModel(TslBaseModel):
         }
 
 
-class CompressorModel(TslBaseModel):
+class CompressorModel(TslObject):
     type_: CompressorType
     sustain: Percent
     attack: Percent
@@ -128,7 +128,7 @@ class CompressorModel(TslBaseModel):
         }
 
 
-class LimiterModel(TslBaseModel):
+class LimiterModel(TslObject):
     type_: LimiterType
     attack: Percent
     threshold: Percent
@@ -150,7 +150,7 @@ class LimiterModel(TslBaseModel):
         }
 
 
-class GraphicEqModel(TslBaseModel):
+class GraphicEqModel(TslObject):
     bar_31: Gain20dB
     bar_62: Gain20dB
     bar_125: Gain20dB
@@ -182,7 +182,7 @@ class GraphicEqModel(TslBaseModel):
         }
 
 
-class ParametricEqModel(TslBaseModel):
+class ParametricEqModel(TslObject):
     low_cut: LowCutFreq
     low_gain: Gain20dB
     low_mid_freq: MidFreq
@@ -214,7 +214,7 @@ class ParametricEqModel(TslBaseModel):
         }
 
 
-class GuitarSimModel(TslBaseModel):
+class GuitarSimModel(TslObject):
     type_: GuitarSimType
     low: int = Field(ge=-50, le=50)
     high: int = Field(ge=-50, le=50)
@@ -234,7 +234,7 @@ class GuitarSimModel(TslBaseModel):
         }
 
 
-class SlowGearModel(TslBaseModel):
+class SlowGearModel(TslObject):
     sens: Percent
     rise_time: Percent
     level: Percent
@@ -250,7 +250,7 @@ class SlowGearModel(TslBaseModel):
         }
 
 
-class WaveSynthModel(TslBaseModel):
+class WaveSynthModel(TslObject):
     type_: WaveSynthType
     cutoff: Percent
     resonance: Percent
@@ -276,7 +276,7 @@ class WaveSynthModel(TslBaseModel):
         }
 
 
-class OctaveModel(TslBaseModel):
+class OctaveModel(TslObject):
     range_: int = Field(ge=1, le=4)
     level: Percent
     direct_mix: Percent
@@ -292,7 +292,7 @@ class OctaveModel(TslBaseModel):
         }
 
 
-class PitchShifterModel(TslBaseModel):
+class PitchShifterModel(TslObject):
     voice: VoiceType
     ps1_mode: PitchShifterMode
     ps1_pitch: Pitch
@@ -328,7 +328,7 @@ class PitchShifterModel(TslBaseModel):
         }
 
 
-class HarmonistUserSettings(TslBaseModel):
+class HarmonistUserSettings(TslObject):
     e: Pitch
     f: Pitch
     f_sharp: Pitch
@@ -362,7 +362,7 @@ class HarmonistUserSettings(TslBaseModel):
         }
 
 
-class HarmonistModel(TslBaseModel):
+class HarmonistModel(TslObject):
     voice: VoiceType
     hr1_mode: Harmony
     hr1_level: Percent
@@ -394,7 +394,7 @@ class HarmonistModel(TslBaseModel):
         }
 
 
-class AcProcessorModel(TslBaseModel):
+class AcProcessorModel(TslObject):
     type_: AcProcessorType
     bass: int = Field(ge=-50, le=50)
     middle: int = Field(ge=-50, le=50)
@@ -418,7 +418,7 @@ class AcProcessorModel(TslBaseModel):
         }
 
 
-class PhaserModel(TslBaseModel):
+class PhaserModel(TslObject):
     type_: PhaserType
     rate: Percent
     depth: Percent
@@ -444,7 +444,7 @@ class PhaserModel(TslBaseModel):
         }
 
 
-class FlangerModel(TslBaseModel):
+class FlangerModel(TslObject):
     rate: Percent
     depth: Percent
     manual: Percent
@@ -468,7 +468,7 @@ class FlangerModel(TslBaseModel):
         }
 
 
-class TremoloModel(TslBaseModel):
+class TremoloModel(TslObject):
     wave_shape: Percent
     rate: Percent
     depth: Percent
@@ -486,7 +486,7 @@ class TremoloModel(TslBaseModel):
         }
 
 
-class RotaryModel(TslBaseModel):
+class RotaryModel(TslObject):
     rate: Percent
     depth: Percent
     level: Percent
@@ -503,7 +503,7 @@ class RotaryModel(TslBaseModel):
         }
 
 
-class UniVModel(TslBaseModel):
+class UniVModel(TslObject):
     rate: Percent
     depth: Percent
     level: Percent
@@ -519,7 +519,7 @@ class UniVModel(TslBaseModel):
         }
 
 
-class SlicerModel(TslBaseModel):
+class SlicerModel(TslObject):
     pattern: int = Field(ge=1, le=20)
     rate: Percent
     trigger_sens: Percent
@@ -539,7 +539,7 @@ class SlicerModel(TslBaseModel):
         }
 
 
-class VibratoModel(TslBaseModel):
+class VibratoModel(TslObject):
     rate: Percent
     depth: Percent
     level: Percent
@@ -556,7 +556,7 @@ class VibratoModel(TslBaseModel):
         }
 
 
-class RingModModel(TslBaseModel):
+class RingModModel(TslObject):
     type_: RingModMode
     frequency: Percent
     level: Percent
@@ -574,7 +574,7 @@ class RingModModel(TslBaseModel):
         }
 
 
-class HumanizerModel(TslBaseModel):
+class HumanizerModel(TslObject):
     mode: HumanizerMode
     vowel1: Vowel
     vowel2: Vowel
@@ -600,7 +600,7 @@ class HumanizerModel(TslBaseModel):
         }
 
 
-class ChorusModel(TslBaseModel):
+class ChorusModel(TslObject):
     crossover_frequency: CrossoverFreq
     low_rate: Percent
     low_depth: Percent
@@ -630,7 +630,7 @@ class ChorusModel(TslBaseModel):
         }
 
 
-class AcGuitarSimModel(TslBaseModel):
+class AcGuitarSimModel(TslObject):
     body: Percent
     low: int = Field(ge=-50, le=50)
     high: int = Field(ge=-50, le=50)
@@ -649,7 +649,7 @@ class AcGuitarSimModel(TslBaseModel):
         }
 
 
-class Phaser90EModel(TslBaseModel):
+class Phaser90EModel(TslObject):
     script_on: bool
     speed: Percent
 
@@ -663,7 +663,7 @@ class Phaser90EModel(TslBaseModel):
         }
 
 
-class Flanger117EModel(TslBaseModel):
+class Flanger117EModel(TslObject):
     manual: Percent
     width: Percent
     speed: Percent
@@ -681,7 +681,7 @@ class Flanger117EModel(TslBaseModel):
         }
 
 
-class Wah95EModel(TslBaseModel):
+class Wah95EModel(TslObject):
     pedal_pos: Percent
     pedal_min: Percent
     pedal_max: Percent
@@ -701,7 +701,7 @@ class Wah95EModel(TslBaseModel):
         }
 
 
-class DelayChorus30Model(TslBaseModel):
+class DelayChorus30Model(TslObject):
     type_: DelayChorusType
     chorus_intensity: Percent
     echo_repeat_rate: int = Field(ge=0, le=600)
@@ -727,7 +727,7 @@ class DelayChorus30Model(TslBaseModel):
         }
 
 
-class HeavyOctaveModel(TslBaseModel):
+class HeavyOctaveModel(TslObject):
     level_1_oct: Percent
     level_2_oct: Percent
     direct_mix: Percent
@@ -743,7 +743,7 @@ class HeavyOctaveModel(TslBaseModel):
         }
 
 
-class PedalBendModel(TslBaseModel):
+class PedalBendModel(TslObject):
     pedal_pos: Percent
     pitch: Pitch
     level: Percent
@@ -761,7 +761,7 @@ class PedalBendModel(TslBaseModel):
         }
 
 
-class FxModel(TslBaseModel):
+class FxModel(TslObject):
     on: bool
     type_: ModFxType
     t_wah: TWahModel

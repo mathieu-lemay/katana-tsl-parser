@@ -91,6 +91,30 @@ class CabResonance(IntEnum):
     Deep = 2
 
 
+class ChainItem(IntEnum):
+    PedalFX = 11
+    Booster = 15
+    Mod = 5
+    FX = 6
+    EQ = 4
+    Solo = 10
+    Preamp = 2
+    EQ2 = 0
+    NoiseGate = 13
+    FootVolume = 12
+    SendReturn = 1
+    Delay = 7
+    Delay2 = 17
+    Reverb = 8
+
+    Unknown1 = 9  # Is always after reverb
+    Unknown2 = 18
+    Unknown3 = 3
+    Unknown4 = 14
+    Unknown5 = 16
+    Unknown6 = 19
+
+
 class CompressorType(IntEnum):
     BossComp = 0
     HiBand = 1

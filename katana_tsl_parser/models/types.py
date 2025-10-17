@@ -1,5 +1,5 @@
 from collections.abc import Sequence
-from typing import Annotated, Any, cast
+from typing import Annotated, Any, Generic, TypeVar, cast
 
 from pydantic import (
     BaseModel,
@@ -28,8 +28,10 @@ def decode_delay_time(values: list[str]) -> int:
     return time
 
 
-class TslBaseModel(BaseModel):
-    model_config = ConfigDict(populate_by_name=True, extra="forbid")
+T = TypeVar("T")
+
+
+class _TslBaseModel(BaseModel):
     _raw: list[str] | None = PrivateAttr(None)
 
     def __init__(self, **data: JsonDict) -> None:
@@ -58,6 +60,14 @@ class TslBaseModel(BaseModel):
         expected = expected or len(cls._get_fields())
         if size != expected:
             raise InvalidValueListLengthError(size, expected)
+
+
+class TslObject(_TslBaseModel):
+    model_config = ConfigDict(populate_by_name=True, extra="forbid")
+
+
+class TslList(_TslBaseModel, Generic[T]):
+    root: list[T]
 
 
 Percent = Annotated[int, Field(ge=0, le=100)]

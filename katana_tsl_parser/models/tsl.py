@@ -10,6 +10,7 @@ from .enums import (
     AmpType,
     BoostType,
     CabResonance,
+    ChainItem,
     ContourChoice,
     DelayType,
     EqPosition,
@@ -35,7 +36,8 @@ from .types import (
     Percent,
     Pitch,
     Q,
-    TslBaseModel,
+    TslList,
+    TslObject,
     decode_delay_time,
     i,
 )
@@ -43,7 +45,7 @@ from .types import (
 MAX_NAME_LENGTH = 16
 
 
-class EqModel(TslBaseModel):
+class EqModel(TslObject):
     on: bool
     type_: EqType
     low_cut: LowCutFreq
@@ -101,7 +103,7 @@ class EqModel(TslBaseModel):
         }
 
 
-class Patch0Model(TslBaseModel):
+class Patch0Model(TslObject):
     boost_on: bool
     boost_type: BoostType
     boost_drive: int = Field(ge=0, le=120)
@@ -149,7 +151,7 @@ class Patch0Model(TslBaseModel):
         }
 
 
-class Patch1Model(TslBaseModel):
+class Patch1Model(TslObject):
     reverb_on: bool
     reverb_type: ReverbType
     reverb_time: float = Field(ge=0.1, le=10.0, multiple_of=0.1)
@@ -248,7 +250,7 @@ class Patch1Model(TslBaseModel):
         return res
 
 
-class Patch2Model(TslBaseModel):
+class Patch2Model(TslObject):
     boost_green: BoostType
     boost_red: BoostType
     boost_yellow: BoostType
@@ -314,7 +316,7 @@ class Patch2Model(TslBaseModel):
         }
 
 
-class PatchMk2v2Model(TslBaseModel):
+class PatchMk2v2Model(TslObject):
     solo_eq_position: EqPosition
     solo_eq_on: bool
     solo_eq_low_cut: LowCutFreq
@@ -345,7 +347,7 @@ class PatchMk2v2Model(TslBaseModel):
         }
 
 
-class DelayModel(TslBaseModel):
+class DelayModel(TslObject):
     delay_on: bool
     delay_type: DelayType
     delay_time: int
@@ -385,7 +387,7 @@ class DelayModel(TslBaseModel):
         }
 
 
-class ContourModel(TslBaseModel):
+class ContourModel(TslObject):
     contour_type: int
     freq_shift: int
 
@@ -401,7 +403,34 @@ class ContourModel(TslBaseModel):
         }
 
 
-class ParamSetModel(TslBaseModel):
+class ChainModel(TslList[ChainItem]):
+    """
+    Input
+    PedalFX
+    Booster
+    Mod
+    EQ
+    Solo
+    Preamp
+    EQ2
+    FX
+    NoiseGate
+    FootVolume
+    Send/Return
+    Delay
+    Delay2
+    Reverb
+    Output
+    """
+
+    @classmethod
+    def decode_tsl(cls, values: list[str]) -> JsonDict:
+        cls._expect_size(values, 20)
+
+        return {"root": [ChainItem(i(v)) for v in values]}
+
+
+class ParamSetModel(TslObject):
     model_config = ConfigDict(populate_by_name=True, extra="ignore")
 
     name: str = Field(alias="UserPatch%PatchName")
@@ -429,6 +458,7 @@ class ParamSetModel(TslBaseModel):
     contour2: ContourModel | None = Field(alias="UserPatch%Contour(2)", default=None)
     contour3: ContourModel | None = Field(alias="UserPatch%Contour(3)", default=None)
     eq2: EqModel = Field(alias="UserPatch%Eq(2)")
+    chain: ChainModel = Field(alias="UserPatch%Chain")
 
     # TODO: Move all the validators to parse_tsl and add Version enum
 
@@ -490,15 +520,19 @@ class ParamSetModel(TslBaseModel):
     def parse_eq2(cls, v: list[str]) -> JsonDict:
         return EqModel.decode_tsl(v)
 
+    @field_validator("chain", mode="before")
+    def parse_chain(cls, v: list[str]) -> JsonDict:
+        return ChainModel.decode_tsl(v)
 
-class MemoModel(TslBaseModel):
+
+class MemoModel(TslObject):
     memo: str
     is_tone_central_patch: bool = Field(alias="isToneCentralPatch")
     note: str | None = None
     log_patch_name: str | None = Field(alias="logPatchName", default=None)
 
 
-class PatchModel(TslBaseModel):
+class PatchModel(TslObject):
     memo: MemoModel | str | None = None
     param_set: ParamSetModel = Field(alias="paramSet")
 
@@ -507,7 +541,7 @@ class PatchModel(TslBaseModel):
         return PatchModel(**values)
 
 
-class TslModel(TslBaseModel):
+class TslModel(TslObject):
     name: str
     format_rev: str = Field(alias="formatRev")
     device: str
