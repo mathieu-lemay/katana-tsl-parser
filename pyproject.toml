@@ -63,9 +63,6 @@ ignore = [
     "FIX",  # flake8-fixme
     "TD",  # flake8-todos
 
-    "ANN101", # Missing type annotation for `self` in method
-    "ANN102", # Missing type annotation for `cls` in method
-
     #"PLR2004",  # Magic value used in comparison, consider replacing `x` with a constant variable
 ]
 
