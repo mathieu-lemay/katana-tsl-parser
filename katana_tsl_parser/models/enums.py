@@ -183,6 +183,12 @@ class EqType(IntEnum):
     Graphic10 = 1
 
 
+class Footswitch(IntEnum):
+    ChannelSwitch = 0
+    BankAB = 1
+    SoloOnOff = 2
+
+
 class GuitarSimType(IntEnum):
     SingleToHumbucker = 0
     HumbuckerToSingle = 1
@@ -263,6 +269,328 @@ class Key(_DescIntEnum):
     A = 9, "A (F#m)"
     Bb = 10, "Bb (Gm)"
     B = 11, "B (G#m)"
+
+
+class KnobBooster(IntEnum):
+    Preset = 0
+    Drive = 1
+    Tone = 2
+    Bottom = 3
+    EffectLevel = 4
+    SoloSwitch = 5
+    SoloLevel = 6
+    DirectMix = 7
+
+
+class KnobDelay(IntEnum):
+    Preset = 0
+    DelayTime = 1
+    Feedback = 2
+    HighCut = 3
+    EffectLevel = 4
+    DirectMix = 5
+    ModRate = 6
+    ModDepth = 7
+
+
+class KnobReverb(IntEnum):
+    Preset = 0
+    ReverbTime = 1
+    PreDelay = 2
+    EffectLevel = 3
+    DirectMix = 4
+    LowCut = 5
+    HighCut = 6
+    Density = 7
+    SpringSens = 8
+
+
+class KnobChorus(IntEnum):
+    Preset = 0
+    LowRate = 1
+    LowDepth = 2
+    LowPreDelay = 3
+    LowLevel = 4
+    DirectMix = 5
+    HighRate = 6
+    HighDepth = 7
+    HighPreDelay = 8
+    HighLevel = 9
+    Crossover = 10
+
+
+class KnobFlanger(IntEnum):
+    Preset = 0
+    Rate = 1
+    Depth = 2
+    Reso = 3
+    Manual = 4
+    EffectLevel = 5
+    LowCut = 6
+    DirectMix = 7
+
+
+class KnobPhaser(IntEnum):
+    Preset = 0
+    Rate = 1
+    Depth = 2
+    Reso = 3
+    Manual = 4
+    EffectLevel = 5
+    StepRate = 6
+    DirectMix = 7
+
+
+class KnobUniV(IntEnum):
+    Preset = 0
+    Rate = 1
+    Depth = 2
+    Level = 3
+
+
+class KnobTremolo(IntEnum):
+    Preset = 0
+    WaveShape = 1
+    Rate = 2
+    Depth = 3
+    Level = 4
+
+
+class KnobVibrato(IntEnum):
+    Preset = 0
+    Rate = 1
+    Depth = 2
+    Level = 3
+
+
+class KnobRotaty(IntEnum):
+    Preset = 0
+    Rate = 1
+    Depth = 2
+    Level = 3
+
+
+class KnobRingMod(IntEnum):
+    Preset = 0
+    Frequency = 1
+    EffectLevel = 2
+    DirectMix = 3
+
+
+class KnobSlowGear(IntEnum):
+    Preset = 0
+    Sens = 1
+    RiseTime = 2
+    Level = 3
+
+
+class KnobSlicer(IntEnum):
+    Preset = 0
+    Rate = 1
+    TriggerSens = 2
+    EffectLevel = 3
+    DirectMix = 4
+
+
+class KnobCompressor(IntEnum):
+    Preset = 0
+    Sustain = 1
+    Attack = 2
+    Tone = 3
+    Level = 4
+
+
+class KnobLimiter(IntEnum):
+    Preset = 0
+    Threshold = 1
+    Ratio = 2
+    Attack = 3
+    Release = 4
+    Level = 5
+
+
+class KnobTouchWah(IntEnum):
+    Preset = 0
+    Sens = 1
+    Freq = 2
+    Peak = 3
+    EffectLevel = 4
+    DirectMix = 5
+
+
+class KnobAutoWah(IntEnum):
+    Preset = 0
+    Rate = 1
+    Depth = 2
+    Freq = 3
+    Peak = 4
+    EffectLevel = 5
+    DirectMix = 6
+
+
+class KnobPedalWah(IntEnum):
+    Preset = 0
+    PedalPos = 1
+    PedalMin = 2
+    PedalMax = 3
+    EffectLevel = 4
+    DirectMix = 5
+
+
+class KnobGraphicEq(IntEnum):
+    Preset = 0
+    Hz31 = 1
+    Hz62 = 2
+    Hz125 = 3
+    Hz250 = 4
+    Hz500 = 5
+    Hz1000 = 6
+    Hz2000 = 7
+    Hz4000 = 8
+    Hz8000 = 9
+    Hz16000 = 10
+    Level = 11
+
+
+class KnobParametricEq(IntEnum):
+    Preset = 0
+    LowGain = 1
+    LowMidGain = 2
+    HighMidGain = 3
+    HighGain = 4
+    Level = 5
+    LowMidFreq = 6
+    LowMidQ = 7
+    HighMidFreq = 8
+    HighMidQ = 9
+    LowCut = 10
+    HighCut = 11
+
+
+class KnobGuitarSim(IntEnum):
+    Preset = 0
+    Low = 1
+    High = 2
+    Body = 3
+    Level = 4
+
+
+class KnobAcGuitarSim(IntEnum):
+    Preset = 0
+    Low = 1
+    High = 2
+    Body = 3
+    Level = 4
+
+
+class KnobAcProcessor(IntEnum):
+    Preset = 0
+    Bass = 1
+    Middle = 2
+    Treble = 3
+    Presence = 4
+    Level = 5
+    MidFreq = 6
+
+
+class KnobWaveSynth(IntEnum):
+    Preset = 0
+    Cutoff = 1
+    Reso = 2
+    Level = 3
+    FilterSens = 4
+    FilterDecay = 5
+    FilterDepth = 6
+    DirectMix = 7
+
+
+class KnobOctave(IntEnum):
+    Preset = 0
+    EffectLevel = 1
+    DirectMix = 2
+
+
+class KnobHeavyOctave(IntEnum):
+    Preset = 0
+    Oct1Level = 8
+    Oct2Level = 9
+    DirectMix = 10
+
+
+class KnobPitchShifter(IntEnum):
+    Preset = 0
+    Ps1Pitch = 1
+    Ps1Level = 2
+    Ps2Pitch = 3
+    Ps2Level = 4
+    DirectMix = 5
+    Ps1Fine = 6
+    Ps1PreDelay = 7
+    Ps1Feedback = 8
+    Ps2Fine = 9
+    Ps2PreDelay = 10
+
+
+class KnobHarmonist(IntEnum):
+    Preset = 0
+    Hr1Harmony = 1
+    Hr2Harmony = 2
+    MasterKey = 3
+    DirectMix = 4
+    Hr1PreDelay = 5
+    Hr1Feedback = 6
+    Hr1Level = 7
+    Hr2PreDelay = 8
+    Hr2Level = 9
+
+
+class KnobHumanizer(IntEnum):
+    Preset = 0
+    Rate = 1
+    Depth = 2
+    Level = 3
+    Sens = 4
+    Manual = 5
+
+
+class KnobPhaser90E(IntEnum):
+    Preset = 0
+    Speed = 1
+
+
+class KnobFlanger117E(IntEnum):
+    Preset = 0
+    Manual = 1
+    Witdh = 2
+    Speed = 3
+    Regen = 4
+
+
+class KnobWah95E(IntEnum):
+    Preset = 0
+    PedalPos = 1
+    PedalMin = 2
+    PedalMax = 3
+    EffectLevel = 4
+    DirectMix = 5
+
+
+class KnobDC30(IntEnum):
+    Preset = 0
+    ChorusIntensity = 1
+    EchoRepeatRate = 2
+    EchoIntensity = 3
+    EchoVolume = 4
+    InputVolume = 5
+    Tone = 6
+
+
+class KnobPedalBend(IntEnum):
+    Preset = 0
+    PedalPos = 1
+    Pitch = 2
+    EffectLevel = 3
+    DirectMix = 4
 
 
 class Light(IntEnum):

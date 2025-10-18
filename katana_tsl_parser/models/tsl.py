@@ -15,8 +15,43 @@ from .enums import (
     DelayType,
     EqPosition,
     EqType,
+    Footswitch,
     HighCutFreq,
     Key,
+    KnobAcGuitarSim,
+    KnobAcProcessor,
+    KnobAutoWah,
+    KnobBooster,
+    KnobChorus,
+    KnobCompressor,
+    KnobDC30,
+    KnobDelay,
+    KnobFlanger,
+    KnobFlanger117E,
+    KnobGraphicEq,
+    KnobGuitarSim,
+    KnobHarmonist,
+    KnobHeavyOctave,
+    KnobHumanizer,
+    KnobLimiter,
+    KnobOctave,
+    KnobParametricEq,
+    KnobPedalBend,
+    KnobPedalWah,
+    KnobPhaser,
+    KnobPhaser90E,
+    KnobPitchShifter,
+    KnobReverb,
+    KnobRingMod,
+    KnobRotaty,
+    KnobSlicer,
+    KnobSlowGear,
+    KnobTouchWah,
+    KnobTremolo,
+    KnobUniV,
+    KnobVibrato,
+    KnobWah95E,
+    KnobWaveSynth,
     Light,
     LowCutFreq,
     MidFreq,
@@ -316,6 +351,63 @@ class Patch2Model(TslObject):
         }
 
 
+class KnobAssign(TslObject):
+    booster: KnobBooster
+    delay: KnobDelay
+    reverb: KnobReverb
+    chorus: KnobChorus
+    flanger: KnobFlanger
+    phaser: KnobPhaser
+    uni_v: KnobUniV
+    tremolo: KnobTremolo
+    vibrato: KnobVibrato
+    rotary: KnobRotaty
+    ring_mod: KnobRingMod
+    slow_gear: KnobSlowGear
+    slicer: KnobSlicer
+    comp: KnobCompressor
+    limiter: KnobLimiter
+    touch_wah: KnobTouchWah
+    auto_wah: KnobAutoWah
+    pedal_wah: KnobPedalWah
+    graphic_eq: KnobGraphicEq
+    parametric_eq: KnobParametricEq
+    guitar_sim: KnobGuitarSim
+    ac_guitar_sim: KnobAcGuitarSim
+    ac_processor: KnobAcProcessor
+    wave_synth: KnobWaveSynth
+    octave: KnobOctave
+    heavy_octave: KnobHeavyOctave
+    pitch_shifter: KnobPitchShifter
+    harmonist: KnobHarmonist
+    humanizer: KnobHumanizer
+    phaser_90e: KnobPhaser90E
+    flanger_117e: KnobFlanger117E
+    wah_95e: KnobWah95E
+    dc_30: KnobDC30
+    pedal_bend: KnobPedalBend
+
+    @classmethod
+    def decode_tsl(cls, values: list[str]) -> JsonDict:
+        cls._expect_size(values, 34)
+
+        return {f: i(v) for f, v in zip(cls.model_fields, values, strict=True)}
+
+
+class FootswitchAssign(TslObject):
+    fs1: Footswitch
+    fs2: Footswitch
+
+    @classmethod
+    def decode_tsl(cls, values: list[str]) -> JsonDict:
+        cls._expect_size(values, 2)
+
+        return {
+            "fs1": Footswitch(i(values[0])),
+            "fs2": Footswitch(i(values[1])),
+        }
+
+
 class PatchMk2v2Model(TslObject):
     solo_eq_position: EqPosition
     solo_eq_on: bool
@@ -404,25 +496,6 @@ class ContourModel(TslObject):
 
 
 class ChainModel(TslList[ChainItem]):
-    """
-    Input
-    PedalFX
-    Booster
-    Mod
-    EQ
-    Solo
-    Preamp
-    EQ2
-    FX
-    NoiseGate
-    FootVolume
-    Send/Return
-    Delay
-    Delay2
-    Reverb
-    Output
-    """
-
     @classmethod
     def decode_tsl(cls, values: list[str]) -> JsonDict:
         cls._expect_size(values, 20)
@@ -443,14 +516,14 @@ class ParamSetModel(TslObject):
     patch1: Patch1Model = Field(alias="UserPatch%Patch_1")
     patch2: Patch2Model = Field(alias="UserPatch%Patch_2")
     # status: list[str] = Field(alias="UserPatch%Status")  # noqa: ERA001
-    # knob_assign: list[str] = Field(alias="UserPatch%KnobAsgn")  # noqa: ERA001
+    knob_assign: KnobAssign = Field(alias="UserPatch%KnobAsgn")
     # expression_pedal_assign: list[str] = Field(alias="UserPatch%ExpPedalAsgn")  # noqa: ERA001, E501
     # expression_pedal_min_max: list[str] = Field(alias="UserPatch%ExpPedalAsgnMinMax")  # noqa: ERA001, E501
     # gafc_expression1_assign: list[str] = Field(alias="UserPatch%GafcExp1Asgn")  # noqa: ERA001, E501
     # gafc_expression1_min_max: list[str] = Field(alias="UserPatch%GafcExp1AsgnMinMax")  # noqa: ERA001, E501
     # gafc_expression2_assign: list[str] = Field(alias="UserPatch%GafcExp2Asgn")  # noqa: ERA001, E501
     # gafc_expression2_min_max: list[str] = Field(alias="UserPatch%GafcExp2AsgnMinMax")  # noqa: ERA001, E501
-    # footswitch_assign: list[str] | None = Field(alias="UserPatch%FsAsgn")  # noqa: ERA001, E501
+    footswitch_assign: FootswitchAssign = Field(alias="UserPatch%FsAsgn")
     patch_mk2v2: PatchMk2v2Model | None = Field(
         alias="UserPatch%Patch_Mk2V2", default=None
     )
@@ -499,6 +572,14 @@ class ParamSetModel(TslObject):
     @field_validator("patch2", mode="before")
     def parse_patch2(cls, v: list[str]) -> JsonDict:
         return Patch2Model.decode_tsl(v)
+
+    @field_validator("knob_assign", mode="before")
+    def parse_knob_assign(cls, v: list[str]) -> JsonDict:
+        return KnobAssign.decode_tsl(v)
+
+    @field_validator("footswitch_assign", mode="before")
+    def parse_footwsitch_assign(cls, v: list[str]) -> JsonDict:
+        return FootswitchAssign.decode_tsl(v)
 
     @field_validator("patch_mk2v2", mode="before")
     def parse_patch_mk2v2(cls, v: list[str]) -> JsonDict:

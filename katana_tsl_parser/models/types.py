@@ -1,4 +1,5 @@
 from collections.abc import Sequence
+from enum import IntEnum
 from typing import Annotated, Any, Generic, TypeVar, cast
 
 from pydantic import (
@@ -28,7 +29,7 @@ def decode_delay_time(values: list[str]) -> int:
     return time
 
 
-T = TypeVar("T")
+IntEnumT = TypeVar("IntEnumT", bound=IntEnum)
 
 
 class _TslBaseModel(BaseModel):
@@ -66,8 +67,8 @@ class TslObject(_TslBaseModel):
     model_config = ConfigDict(populate_by_name=True, extra="forbid")
 
 
-class TslList(_TslBaseModel, Generic[T]):
-    root: list[T]
+class TslList(_TslBaseModel, Generic[IntEnumT]):
+    root: list[IntEnumT]
 
 
 Percent = Annotated[int, Field(ge=0, le=100)]
