@@ -1,17 +1,18 @@
 {
   "template": "git@github.com:mathieu-lemay/python-project-template.git",
-  "commit": "f732474906d4529402983edf2715e602aa13421b",
+  "commit": "9636ce84dd36c77d769f6c00de90210d4750d3b8",
   "checkout": null,
   "context": {
     "cookiecutter": {
       "project_slug": "katana-tsl-parser",
-      "project_description": "'Parse Katana TSL files'",
+      "project_description": "Parse Katana TSL files",
       "module_name": "katana_tsl_parser",
-      "python_version": "^3.10",
-      "target_version": "py310",
+      "python_version": ">=3.12,<4.0",
+      "target_version": "py312",
       "license": "MIT",
+      "pydantic": true,
       "_template": "git@github.com:mathieu-lemay/python-project-template.git",
-      "_commit": "f732474906d4529402983edf2715e602aa13421b"
+      "_commit": "9636ce84dd36c77d769f6c00de90210d4750d3b8"
     }
   },
   "directory": null
