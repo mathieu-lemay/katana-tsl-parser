@@ -1,10 +1,11 @@
 from enum import IntEnum
+from typing import Self
 
 
 class _DescIntEnum(IntEnum):
     description: str
 
-    def __new__(cls, value: int, description: str = "") -> "_DescIntEnum":
+    def __new__(cls, value: int, description: str = "") -> Self:
         obj = int.__new__(cls, value)
         obj._value_ = value
         obj.description = description
