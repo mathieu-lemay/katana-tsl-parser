@@ -9,7 +9,7 @@ import click
 
 from katana_tsl_parser.models import TslModel
 from katana_tsl_parser.models.tsl import MAX_NAME_LENGTH
-from katana_tsl_parser.pretty_printer import print_patch
+from katana_tsl_parser.pretty_printer import Orientation, PrettyPrinter
 
 if TYPE_CHECKING:
     from katana_tsl_parser.models.types import TslObject
@@ -56,7 +56,13 @@ def main() -> None:
 @main.command("print")
 @click.argument("tsl-file", type=click.Path(exists=True, path_type=pathlib.Path))
 @click.option("-i", "--index", type=click.INT, help="Index of the patch")
-def pretty_print(tsl_file: Path, index: int | None) -> None:
+@click.option(
+    "--orientation",
+    type=Orientation,
+    help="Table orientation",
+    default=Orientation.VERTICAL,
+)
+def pretty_print(tsl_file: Path, index: int | None, orientation: Orientation) -> None:
     tsl = TslModel.model_validate_json(tsl_file.read_text())
 
     if index is not None:
@@ -69,8 +75,9 @@ def pretty_print(tsl_file: Path, index: int | None) -> None:
     else:
         values = tsl.data[0][:]
 
+    pp = PrettyPrinter(orientation=orientation)
     for idx, v in enumerate(values):
-        print_patch(idx, v)
+        pp.print_patch(idx, v)
 
 
 @main.command()
