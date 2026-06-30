@@ -3,12 +3,16 @@ import json
 import pathlib
 from copy import deepcopy
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import click
 
 from katana_tsl_parser.models import TslModel
 from katana_tsl_parser.models.tsl import MAX_NAME_LENGTH
 from katana_tsl_parser.pretty_printer import print_patch
+
+if TYPE_CHECKING:
+    from katana_tsl_parser.models.types import TslObject
 
 
 def encode_name(name: str) -> list[str]:
@@ -46,7 +50,7 @@ def update_some_values(f: str) -> None:
 
 @click.group()
 def main() -> None:
-    ...
+    pass
 
 
 @main.command("print")
@@ -75,6 +79,7 @@ def pretty_print(tsl_file: Path, index: int | None) -> None:
 def dump(tsl_file: Path, index: int | None) -> None:
     tsl = TslModel.model_validate_json(tsl_file.read_text())
 
+    values: TslObject
     if index is not None:
         n = len(tsl.data[0])
         if index >= n:

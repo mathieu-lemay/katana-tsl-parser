@@ -1,12 +1,21 @@
 from enum import Enum
+from typing import TYPE_CHECKING
 
 from rich.console import Console
 from rich.table import Table
 
-from katana_tsl_parser.models.enums import ModFxType, EqType
+from katana_tsl_parser.models.enums import EqType, ModFxType, PedalFxType
 from katana_tsl_parser.models.mod_fx import FxModel
-from katana_tsl_parser.models.tsl import PatchModel, Patch0Model, DelayModel, Patch1Model, EqModel
-from katana_tsl_parser.models.types import TslObject
+from katana_tsl_parser.models.tsl import (
+    DelayModel,
+    EqModel,
+    Patch0Model,
+    Patch1Model,
+    PatchModel,
+)
+
+if TYPE_CHECKING:
+    from katana_tsl_parser.models.types import TslObject
 
 
 def print_patch(idx: int, patch: PatchModel) -> None:
@@ -62,7 +71,10 @@ def format_boost(patch: Patch0Model) -> Table:
     return t
 
 
-def format_fx(fx: FxModel) -> Table:
+# C901: Too complex (>10)
+# PLR0912: Too many branches (>12)
+# PLR0915: Too many statements (>50)
+def format_fx(fx: FxModel) -> Table:  # noqa: C901, PLR0912, PLR0915
     t = _data_table()
     if not fx.on:
         t.add_row("Off", style="italic")
@@ -207,7 +219,27 @@ def format_cabinet() -> Table:
 def format_pedal_fx(patch: Patch1Model) -> Table:
     t = _data_table()
 
-    t.add_row("TODO", style="bold")
+    t.add_row("Type", patch.pedal_fx_type.name)
+
+    match patch.pedal_fx_type:
+        case PedalFxType.Wah:
+            t.add_row("Wah Type", patch.pedal_fx_wah_type.name)
+            t.add_row("Wah Position", str(patch.pedal_fx_wah_pos))
+            t.add_row("Wah Min", str(patch.pedal_fx_wah_min))
+            t.add_row("Wah Max", str(patch.pedal_fx_wah_max))
+            t.add_row("Wah Level", str(patch.pedal_fx_wah_level))
+            t.add_row("Wah Direct Mix", str(patch.pedal_fx_wah_direct_mix))
+        case PedalFxType.Bend:
+            t.add_row("Bend Position", str(patch.pedal_fx_bend_pos))
+            t.add_row("Bend Pitch", str(patch.pedal_fx_bend_pitch))
+            t.add_row("Bend Level", str(patch.pedal_fx_bend_level))
+            t.add_row("Bend Direct Mix", str(patch.pedal_fx_bend_direct_mix))
+        case PedalFxType.Wah95E:
+            t.add_row("Wah95 Position", str(patch.pedal_fx_wah95_pos))
+            t.add_row("Wah95 Min", str(patch.pedal_fx_wah95_min))
+            t.add_row("Wah95 Max", str(patch.pedal_fx_wah95_max))
+            t.add_row("Wah95 Level", str(patch.pedal_fx_wah95_level))
+            t.add_row("Wah95 Direct Mix", str(patch.pedal_fx_wah95_direct_mix))
 
     return t
 
