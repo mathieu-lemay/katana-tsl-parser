@@ -2,7 +2,7 @@ from enum import IntEnum
 from typing import Self
 
 
-class _DescIntEnum(IntEnum):
+class DescIntEnum(IntEnum):
     description: str
 
     def __new__(cls, value: int, description: str = "") -> Self:
@@ -214,7 +214,7 @@ class GuitarSimType(IntEnum):
     PiezoToAcoustic = 7
 
 
-class Harmony(_DescIntEnum):
+class Harmony(DescIntEnum):
     HMin2Oct = 0, "-2oct"
     HMin14th = 1, "-14th"
     HMin13th = 2, "-13th"
@@ -247,22 +247,22 @@ class Harmony(_DescIntEnum):
     HUser = 29, "User"
 
 
-class HighCutFreq(IntEnum):
-    Hz630 = 0
-    Hz800 = 1
-    Hz1000 = 2
-    Hz1250 = 3
-    Hz1600 = 4
-    Hz2000 = 5
-    Hz2500 = 6
-    Hz3150 = 7
-    Hz4000 = 8
-    Hz5000 = 9
-    Hz6300 = 10
-    Hz8000 = 11
-    Hz10000 = 12
-    Hz12500 = 13
-    Flat = 14
+class HighCutFreq(DescIntEnum):
+    Hz630 = 0, "630 Hz"
+    Hz800 = 1, "800 Hz"
+    Hz1000 = 2, "1.00 kHz"
+    Hz1250 = 3, "1.25 kHz"
+    Hz1600 = 4, "1.60 kHz"
+    Hz2000 = 5, "2.00 kHz"
+    Hz2500 = 6, "2.50 kHz"
+    Hz3150 = 7, "3.15 kHz"
+    Hz4000 = 8, "4.00 kHz"
+    Hz5000 = 9, "5.00 kHz"
+    Hz6300 = 10, "6.30 kHz"
+    Hz8000 = 11, "8.00 kHz"
+    Hz10000 = 12, "10.0 kHz"
+    Hz12500 = 13, "12.5 kHz"
+    Flat = 14, "Flat"
 
 
 class HumanizerMode(IntEnum):
@@ -270,19 +270,19 @@ class HumanizerMode(IntEnum):
     Auto = 1
 
 
-class Key(_DescIntEnum):
-    C = 0, "C (Am)"
-    Db = 1, "Db (Bbm)"
-    D = 2, "D (Bm)"
-    Eb = 3, "Eb (Cm)"
-    E = 4, "E (C#m)"
-    F = 5, "F (Dm)"
-    Fs = 6, "F# (D#m)"
-    G = 7, "G (Em)"
-    Ab = 8, "Ab (Fm)"
-    A = 9, "A (F#m)"
-    Bb = 10, "Bb (Gm)"
-    B = 11, "B (G#m)"
+class Key(DescIntEnum):
+    C = 0, "C / Am"
+    Db = 1, "Db / Bbm"
+    D = 2, "D / Bm"
+    Eb = 3, "Eb / Cm"
+    E = 4, "E / C#m"
+    F = 5, "F / Dm"
+    Fs = 6, "F# / D#m"
+    G = 7, "G / Em"
+    Ab = 8, "Ab / Fm"
+    A = 9, "A / F#m"
+    Bb = 10, "Bb / Gm"
+    B = 11, "B / G#m"
 
 
 class KnobBooster(IntEnum):
@@ -568,7 +568,7 @@ class KnobPhaser90E(IntEnum):
 class KnobFlanger117E(IntEnum):
     Preset = 0
     Manual = 1
-    Witdh = 2
+    Width = 2
     Speed = 3
     Regen = 4
 
@@ -612,28 +612,28 @@ class LimiterType(IntEnum):
     VintageRackU = 2
 
 
-class LowCutFreq(IntEnum):
-    Flat = 0
-    Hz20 = 1
-    Hz25 = 2
-    Hz31_5 = 3
-    Hz40 = 4
-    Hz50 = 5
-    Hz63 = 6
-    Hz80 = 7
-    Hz100 = 8
-    Hz125 = 9
-    Hz160 = 10
-    Hz200 = 11
-    Hz250 = 12
-    Hz315 = 13
-    Hz400 = 14
-    Hz500 = 15
-    Hz630 = 16
-    Hz800 = 17
+class LowCutFreq(DescIntEnum):
+    Flat = 0, "Flat"
+    Hz20 = 1, "20.0 Hz"
+    Hz25 = 2, "25.0 Hz"
+    Hz31_5 = 3, "31.5 Hz"
+    Hz40 = 4, "40.0 Hz"
+    Hz50 = 5, "50.0 Hz"
+    Hz63 = 6, "63.0 Hz"
+    Hz80 = 7, "80.0 Hz"
+    Hz100 = 8, "100 Hz"
+    Hz125 = 9, "125 Hz"
+    Hz160 = 10, "160 Hz"
+    Hz200 = 11, "200 Hz"
+    Hz250 = 12, "250 Hz"
+    Hz315 = 13, "315 Hz"
+    Hz400 = 14, "400 Hz"
+    Hz500 = 15, "500 Hz"
+    Hz630 = 16, "630 Hz"
+    Hz800 = 17, "800 Hz"
 
 
-class MidFreq(_DescIntEnum):
+class MidFreq(DescIntEnum):
     Hz20 = 0, "20.0 Hz"
     Hz25 = 1, "25.0 Hz"
     Hz31_5 = 2, "31.5 Hz"
@@ -742,7 +742,7 @@ class Range(IntEnum):
     KHz17 = 0x01
 
 
-class Ratio(_DescIntEnum):
+class Ratio(DescIntEnum):
     R1 = 0, "1:1"
     R1_2 = 1, "1.2:1"
     R1_4 = 2, "1.4:1"

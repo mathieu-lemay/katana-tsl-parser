@@ -7,11 +7,12 @@ from rich import box
 from rich.console import Console, RenderableType
 from rich.table import Table
 
-from katana_tsl_parser.models.enums import EqType, ModFxType, PedalFxType
+from katana_tsl_parser.models.enums import DescIntEnum, EqType, ModFxType, PedalFxType
 from katana_tsl_parser.models.mod_fx import FxModel
 from katana_tsl_parser.models.tsl import (
     DelayModel,
     EqModel,
+    ParamSetModel,
     Patch0Model,
     Patch1Model,
     PatchModel,
@@ -52,6 +53,7 @@ class PrettyPrinter:
         t.add_row("EQ2", self.format_eq(params.eq2))
         t.add_row("Noise Gate", self.format_noise_gate(params.patch1))
         t.add_row("Send/Return", self.format_send_return(params.patch1))
+        t.add_row("Misc", self.format_misc(params))
 
         c = Console()
         c.print(t)
@@ -177,6 +179,8 @@ class PrettyPrinter:
         for k, v in fx_values.model_dump().items():
             param_name = k.replace("_", " ").strip().title()
             match v:
+                case DescIntEnum():
+                    param_value = v.description
                 case Enum():
                     param_value = v.name
                 case _:
@@ -211,7 +215,7 @@ class PrettyPrinter:
             delay.delay_type.name,
             f"{delay.delay_time}ms",
             str(delay.feedback),
-            str(delay.high_cut.name),
+            str(delay.high_cut.description),
             str(delay.effect_level),
             str(delay.direct_mix),
             str(delay.tap_time),
@@ -245,8 +249,8 @@ class PrettyPrinter:
             patch.reverb_type.name,
             f"{patch.reverb_time}s",
             f"{patch.reverb_pre_delay}ms",
-            patch.reverb_low_cut.name,
-            patch.reverb_high_cut.name,
+            patch.reverb_low_cut.description,
+            patch.reverb_high_cut.description,
             str(patch.reverb_density),
             str(patch.reverb_effect_level),
             str(patch.reverb_direct_mix),
@@ -363,15 +367,15 @@ class PrettyPrinter:
                     "Level",
                 ]
                 values += [
-                    f"{eq.low_cut} Hz",
+                    f"{eq.low_cut.description}",
                     f"{eq.low_gain} dB",
-                    f"{eq.low_mid_freq} Hz",
+                    f"{eq.low_mid_freq.description}",
                     str(eq.low_mid_q),
                     f"{eq.low_mid_gain} dB",
-                    f"{eq.high_mid_freq} Hz",
+                    f"{eq.high_mid_freq.description}",
                     str(eq.high_mid_q),
                     f"{eq.high_mid_gain} dB",
-                    f"{eq.high_cut} Hz",
+                    f"{eq.high_cut.description}",
                     f"{eq.high_gain} dB",
                     f"{eq.bar_level} dB",
                 ]
@@ -397,6 +401,28 @@ class PrettyPrinter:
             str(patch.send_level),
             str(patch.return_level),
         ]
+
+        return self._data_table(names, values)
+
+    def format_misc(self, params: ParamSetModel) -> Table:
+        names = ["Master Key", "Solo On", "Solo Level", "Contour"]
+
+        solo_on = (
+            str(params.patch1.solo_on)
+            if params.patch1.solo_on is not None
+            else "<unspecified>"
+        )
+        solo_level = (
+            str(params.patch1.solo_level)
+            if params.patch1.solo_level is not None
+            else "<unspecified>"
+        )
+        contour = (
+            params.patch1.contour.name
+            if params.patch1.contour is not None
+            else "<unspecified>"
+        )
+        values = [params.patch1.master_key.description, solo_on, solo_level, contour]
 
         return self._data_table(names, values)
 
