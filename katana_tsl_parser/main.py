@@ -2,12 +2,17 @@
 import json
 import pathlib
 from copy import deepcopy
+from enum import Enum
 from pathlib import Path
 
 import click
 
 from katana_tsl_parser.models import TslModel
-from katana_tsl_parser.models.tsl import MAX_NAME_LENGTH
+from katana_tsl_parser.models.enums import Footswitch, ModFxType
+from katana_tsl_parser.models.mod_fx import FxModel
+from katana_tsl_parser.models.tsl import MAX_NAME_LENGTH, PatchModel
+from katana_tsl_parser.models.types import TslObject
+from katana_tsl_parser.pretty_printer import print_patch
 
 
 def encode_name(name: str) -> list[str]:
@@ -54,9 +59,13 @@ def main(tsl_file: Path, index: int | None) -> None:
         if index >= n:
             msg = f"Invalid index: {n}"
             raise ValueError(msg)
-        click.echo(tsl.data[0][index].model_dump_json(indent=2))
+
+        values = [tsl.data[0][index]]
     else:
-        click.echo(tsl.model_dump_json(indent=2))
+        values = tsl.data[0][:]
+
+    for idx, v in enumerate(values):
+        print_patch(idx, v)
 
 
 if __name__ == "__main__":

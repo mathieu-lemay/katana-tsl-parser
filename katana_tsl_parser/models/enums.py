@@ -72,7 +72,7 @@ class BoostType(IntEnum):
     OCTFuzz = 0x09
     BluesDrive = 0x0A
     Overdrive = 0x0B
-    Tubescreamer = 0x0C
+    TubeScreamer = 0x0C
     TurboOD = 0x0D
     Distortion = 0x0E
     Rat = 0x0F
@@ -689,7 +689,7 @@ class ModFxType(IntEnum):
     RingMod = 0x1B
     Humanizer = 0x1C
     Chorus = 0x1D
-    AcGuitarSim = 0x1F
+    AcousticGuitarSim = 0x1F
     Phaser90E = 0x23
     Flanger117E = 0x24
     Wah95E = 0x25

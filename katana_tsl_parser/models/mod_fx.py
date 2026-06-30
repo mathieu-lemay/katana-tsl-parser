@@ -38,7 +38,7 @@ from .types import (
 )
 
 
-class TWahModel(TslObject):
+class TouchWahModel(TslObject):
     mode: WahMode
     polarity: Polarity
     sens: Percent
@@ -503,7 +503,7 @@ class RotaryModel(TslObject):
         }
 
 
-class UniVModel(TslObject):
+class UniVibeModel(TslObject):
     rate: Percent
     depth: Percent
     level: Percent
@@ -764,7 +764,7 @@ class PedalBendModel(TslObject):
 class FxModel(TslObject):
     on: bool
     type_: ModFxType
-    t_wah: TWahModel
+    touch_wah: TouchWahModel = Field(alias="t_wah")
     auto_wah: AutoWahModel
     pedal_wah: PedalWahModel
     compressor: CompressorModel
@@ -782,7 +782,7 @@ class FxModel(TslObject):
     flanger: FlangerModel
     tremolo: TremoloModel
     rotary: RotaryModel
-    uni_v: UniVModel
+    univibe: UniVibeModel = Field(alias="uni_v")
     slicer: SlicerModel
     vibrato: VibratoModel
     ring_mod: RingModModel
@@ -792,7 +792,7 @@ class FxModel(TslObject):
     phaser_90e: Phaser90EModel
     flanger_117e: Flanger117EModel
     wah_95e: Wah95EModel
-    dc30: DelayChorus30Model
+    delay_chorus_30: DelayChorus30Model = Field(alias="dc30")
     heavy_octave: HeavyOctaveModel
     pedal_bend: PedalBendModel | None = None
 
@@ -803,7 +803,7 @@ class FxModel(TslObject):
         res = {
             "on": i(values[0]) > 0,
             "type_": ModFxType(i(values[1])),
-            "t_wah": TWahModel.decode_tsl(values[2:9]),
+            "t_wah": TouchWahModel.decode_tsl(values[2:9]),
             "auto_wah": AutoWahModel.decode_tsl(values[9:16]),
             "pedal_wah": PedalWahModel.decode_tsl(values[16:22]),
             "compressor": CompressorModel.decode_tsl(values[22:27]),
@@ -823,7 +823,7 @@ class FxModel(TslObject):
             "tremolo": TremoloModel.decode_tsl(values[147:151]),
             # TODO: 151-152
             "rotary": RotaryModel.decode_tsl(values[153:158]),
-            "uni_v": UniVModel.decode_tsl(values[158:161]),
+            "uni_v": UniVibeModel.decode_tsl(values[158:161]),
             "slicer": SlicerModel.decode_tsl(values[161:166]),
             "vibrato": VibratoModel.decode_tsl(values[166:171]),
             "ring_mod": RingModModel.decode_tsl(values[171:175]),
