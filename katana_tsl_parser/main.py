@@ -2,16 +2,12 @@
 import json
 import pathlib
 from copy import deepcopy
-from enum import Enum
 from pathlib import Path
 
 import click
 
 from katana_tsl_parser.models import TslModel
-from katana_tsl_parser.models.enums import Footswitch, ModFxType
-from katana_tsl_parser.models.mod_fx import FxModel
-from katana_tsl_parser.models.tsl import MAX_NAME_LENGTH, PatchModel
-from katana_tsl_parser.models.types import TslObject
+from katana_tsl_parser.models.tsl import MAX_NAME_LENGTH
 from katana_tsl_parser.pretty_printer import print_patch
 
 
@@ -48,10 +44,15 @@ def update_some_values(f: str) -> None:
     Path("patches.tsl").write_text(json.dumps(tsl))
 
 
-@click.command()
+@click.group()
+def main() -> None:
+    ...
+
+
+@main.command("print")
 @click.argument("tsl-file", type=click.Path(exists=True, path_type=pathlib.Path))
 @click.option("-i", "--index", type=click.INT, help="Index of the patch")
-def main(tsl_file: Path, index: int | None) -> None:
+def pretty_print(tsl_file: Path, index: int | None) -> None:
     tsl = TslModel.model_validate_json(tsl_file.read_text())
 
     if index is not None:
@@ -66,6 +67,25 @@ def main(tsl_file: Path, index: int | None) -> None:
 
     for idx, v in enumerate(values):
         print_patch(idx, v)
+
+
+@main.command()
+@click.argument("tsl-file", type=click.Path(exists=True, path_type=pathlib.Path))
+@click.option("-i", "--index", type=click.INT, help="Index of the patch")
+def dump(tsl_file: Path, index: int | None) -> None:
+    tsl = TslModel.model_validate_json(tsl_file.read_text())
+
+    if index is not None:
+        n = len(tsl.data[0])
+        if index >= n:
+            msg = f"Invalid index: {n}"
+            raise ValueError(msg)
+
+        values = tsl.data[0][index]
+    else:
+        values = tsl
+
+    click.echo(values.model_dump_json(indent=2))
 
 
 if __name__ == "__main__":
