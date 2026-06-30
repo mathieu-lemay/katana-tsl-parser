@@ -15,6 +15,7 @@ from .enums import (
     DelayType,
     EqPosition,
     EqType,
+    ExpressionPedalFunction,
     Footswitch,
     HighCutFreq,
     Key,
@@ -62,6 +63,7 @@ from .enums import (
     Range,
     ReverbMode,
     ReverbType,
+    SendReturnMode,
 )
 from .mod_fx import FxModel
 from .types import (
@@ -213,6 +215,10 @@ class Patch1Model(TslObject):
     pedal_fx_wah95_max: Percent
     pedal_fx_wah95_level: Percent
     pedal_fx_wah95_direct_mix: Percent
+    send_return_on: bool
+    send_return_mode: SendReturnMode
+    send_level: Percent
+    return_level: Percent
     noise_suppressor_on: bool
     noise_suppressor_threshold: Percent
     noise_suppressor_release: Percent
@@ -254,6 +260,10 @@ class Patch1Model(TslObject):
             "pedal_fx_wah95_max": i(values[30]),
             "pedal_fx_wah95_level": i(values[31]),
             "pedal_fx_wah95_direct_mix": i(values[32]),
+            "send_return_on": i(values[34]) > 0,
+            "send_return_mode": SendReturnMode(i(values[35])),
+            "send_level": i(values[36]),
+            "return_level": i(values[37]),
             "noise_suppressor_on": i(values[38]) > 0,
             "noise_suppressor_threshold": i(values[39]),
             "noise_suppressor_release": i(values[40]),
@@ -314,6 +324,7 @@ class Patch2Model(TslObject):
     delay_light: Light
     reverb_light: Light
 
+    exp_pedal_function: ExpressionPedalFunction
     cab_resonance: CabResonance
 
     @classmethod
@@ -347,11 +358,55 @@ class Patch2Model(TslObject):
             "fx_light": Light(i(values[27])),
             "delay_light": Light(i(values[28])),
             "reverb_light": Light(i(values[29])),
+            "exp_pedal_function": ExpressionPedalFunction(i(values[30])),
             "cab_resonance": CabResonance(i(values[35])),
         }
 
 
 class KnobAssign(TslObject):
+    booster: KnobBooster
+    delay: KnobDelay
+    reverb: KnobReverb
+    chorus: KnobChorus
+    flanger: KnobFlanger
+    phaser: KnobPhaser
+    uni_v: KnobUniV
+    tremolo: KnobTremolo
+    vibrato: KnobVibrato
+    rotary: KnobRotaty
+    ring_mod: KnobRingMod
+    slow_gear: KnobSlowGear
+    slicer: KnobSlicer
+    comp: KnobCompressor
+    limiter: KnobLimiter
+    touch_wah: KnobTouchWah
+    auto_wah: KnobAutoWah
+    pedal_wah: KnobPedalWah
+    graphic_eq: KnobGraphicEq
+    parametric_eq: KnobParametricEq
+    guitar_sim: KnobGuitarSim
+    ac_guitar_sim: KnobAcGuitarSim
+    ac_processor: KnobAcProcessor
+    wave_synth: KnobWaveSynth
+    octave: KnobOctave
+    heavy_octave: KnobHeavyOctave
+    pitch_shifter: KnobPitchShifter
+    harmonist: KnobHarmonist
+    humanizer: KnobHumanizer
+    phaser_90e: KnobPhaser90E
+    flanger_117e: KnobFlanger117E
+    wah_95e: KnobWah95E
+    dc_30: KnobDC30
+    pedal_bend: KnobPedalBend
+
+    @classmethod
+    def decode_tsl(cls, values: list[str]) -> JsonDict:
+        cls._expect_size(values, 34)
+
+        return {f: i(v) for f, v in zip(cls.model_fields, values, strict=True)}
+
+
+class ExpressionPedalAssign(TslObject):
     booster: KnobBooster
     delay: KnobDelay
     reverb: KnobReverb
@@ -517,7 +572,9 @@ class ParamSetModel(TslObject):
     patch2: Patch2Model = Field(alias="UserPatch%Patch_2")
     # status: list[str] = Field(alias="UserPatch%Status")  # noqa: ERA001
     knob_assign: KnobAssign = Field(alias="UserPatch%KnobAsgn")
-    # expression_pedal_assign: list[str] = Field(alias="UserPatch%ExpPedalAsgn")  # noqa: ERA001, E501
+    expression_pedal_assign: ExpressionPedalAssign = Field(
+        alias="UserPatch%ExpPedalAsgn"
+    )
     # expression_pedal_min_max: list[str] = Field(alias="UserPatch%ExpPedalAsgnMinMax")  # noqa: ERA001, E501
     # gafc_expression1_assign: list[str] = Field(alias="UserPatch%GafcExp1Asgn")  # noqa: ERA001, E501
     # gafc_expression1_min_max: list[str] = Field(alias="UserPatch%GafcExp1AsgnMinMax")  # noqa: ERA001, E501
@@ -531,7 +588,7 @@ class ParamSetModel(TslObject):
     contour2: ContourModel | None = Field(alias="UserPatch%Contour(2)", default=None)
     contour3: ContourModel | None = Field(alias="UserPatch%Contour(3)", default=None)
     eq2: EqModel = Field(alias="UserPatch%Eq(2)")
-    chain: ChainModel = Field(alias="UserPatch%Chain")
+    chain: ChainModel | None = Field(alias="UserPatch%Chain", default=None)
 
     # TODO: Move all the validators to parse_tsl and add Version enum
 
@@ -572,6 +629,10 @@ class ParamSetModel(TslObject):
     @field_validator("patch2", mode="before")
     def parse_patch2(cls, v: list[str]) -> JsonDict:
         return Patch2Model.decode_tsl(v)
+
+    @field_validator("expression_pedal_assign", mode="before")
+    def parse_expression_pedal_assign(cls, v: list[str]) -> JsonDict:
+        return ExpressionPedalAssign.decode_tsl(v)
 
     @field_validator("knob_assign", mode="before")
     def parse_knob_assign(cls, v: list[str]) -> JsonDict:

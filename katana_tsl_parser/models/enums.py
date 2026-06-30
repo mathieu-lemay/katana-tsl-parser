@@ -183,6 +183,19 @@ class EqType(IntEnum):
     Graphic10 = 1
 
 
+class ExpressionPedalFunction(IntEnum):
+    Volume = 0
+    FootVolume = 1
+    PedalFxFv = 2
+    Booster = 3
+    Mod = 4
+    Delay = 5
+    FX = 6
+    Delay2 = 7
+    Reverb = 8
+    PedalFx = 9
+
+
 class Footswitch(IntEnum):
     ChannelSwitch = 0
     BankAB = 1
@@ -323,7 +336,7 @@ class KnobFlanger(IntEnum):
     Preset = 0
     Rate = 1
     Depth = 2
-    Reso = 3
+    Resonance = 3
     Manual = 4
     EffectLevel = 5
     LowCut = 6
@@ -334,7 +347,7 @@ class KnobPhaser(IntEnum):
     Preset = 0
     Rate = 1
     Depth = 2
-    Reso = 3
+    Resonance = 3
     Manual = 4
     EffectLevel = 5
     StepRate = 6
@@ -477,9 +490,9 @@ class KnobGuitarSim(IntEnum):
 
 class KnobAcGuitarSim(IntEnum):
     Preset = 0
-    Low = 1
-    High = 2
-    Body = 3
+    Body = 1
+    Low = 2
+    High = 3
     Level = 4
 
 
@@ -496,8 +509,8 @@ class KnobAcProcessor(IntEnum):
 class KnobWaveSynth(IntEnum):
     Preset = 0
     Cutoff = 1
-    Reso = 2
-    Level = 3
+    Resonance = 2
+    SynthLevel = 3
     FilterSens = 4
     FilterDecay = 5
     FilterDepth = 6
@@ -512,20 +525,20 @@ class KnobOctave(IntEnum):
 
 class KnobHeavyOctave(IntEnum):
     Preset = 0
-    Oct1Level = 8
-    Oct2Level = 9
-    DirectMix = 10
+    DirectMix = 1
+    Oct2Level = 6
 
 
 class KnobPitchShifter(IntEnum):
     Preset = 0
-    Ps1Pitch = 1
+    Ps1Pitch = 5
+    Ps1Fine = 7
+
     Ps1Level = 2
     Ps2Pitch = 3
     Ps2Level = 4
-    DirectMix = 5
-    Ps1Fine = 6
-    Ps1PreDelay = 7
+    DirectMix = 1
+    Ps1PreDelay = 8
     Ps1Feedback = 8
     Ps2Fine = 9
     Ps2PreDelay = 10
@@ -534,28 +547,21 @@ class KnobPitchShifter(IntEnum):
 class KnobHarmonist(IntEnum):
     Preset = 0
     Hr1Harmony = 1
-    Hr2Harmony = 2
-    MasterKey = 3
-    DirectMix = 4
-    Hr1PreDelay = 5
-    Hr1Feedback = 6
-    Hr1Level = 7
-    Hr2PreDelay = 8
-    Hr2Level = 9
+    Hr1Level = 2
+    Hr1PreDelay = 4
 
 
 class KnobHumanizer(IntEnum):
-    Preset = 0
+    Sens = 0
     Rate = 1
-    Depth = 2
+    Preset = 2
     Level = 3
-    Sens = 4
     Manual = 5
 
 
 class KnobPhaser90E(IntEnum):
     Preset = 0
-    Speed = 1
+    Speed = 3
 
 
 class KnobFlanger117E(IntEnum):
@@ -703,7 +709,7 @@ class PedalWahType(IntEnum):
     Fat = 2
     Light = 3
     SevenString = 4
-    Reso = 5
+    Resonance = 5
 
 
 class Phase(IntEnum):
@@ -773,6 +779,11 @@ class ReverbType(IntEnum):
 class RingModMode(IntEnum):
     Normal = 0
     Intelligent = 1
+
+
+class SendReturnMode(IntEnum):
+    Serial = 0
+    Parallel = 1
 
 
 class VoiceType(IntEnum):
