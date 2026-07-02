@@ -15,6 +15,7 @@ from katana_tsl_parser.models.tsl import (
     ParamSetModel,
     Patch0Model,
     Patch1Model,
+    Patch2Model,
     PatchModel,
 )
 
@@ -54,6 +55,7 @@ class PrettyPrinter:
         t.add_row("Noise Gate", self.format_noise_gate(params.patch1))
         t.add_row("Send/Return", self.format_send_return(params.patch1))
         t.add_row("Misc", self.format_misc(params))
+        t.add_row("Panel Knobs", self.format_panel_knobs(params.patch2))
 
         c = Console()
         c.print(t)
@@ -426,15 +428,71 @@ class PrettyPrinter:
 
         return self._data_table(names, values)
 
+    def format_panel_knobs(self, patch: Patch2Model) -> Table:
+        def _knob_table(g: str, r: str, y: str, current: str = "N/A") -> Table:
+            kt_names = ["Green", "Red", "Yellow", "Current"]
+
+            t = self._data_table(kt_names, [g, r, y, current])
+            t.box = None
+
+            return t
+
+        names = ["Boost", "Mod", "FX", "Delay", "Reverb", "Delay2"]
+        values = [
+            _knob_table(
+                patch.boost_green.name,
+                patch.boost_red.name,
+                patch.boost_yellow.name,
+                patch.boost_light.name,
+            ),
+            _knob_table(
+                patch.mod_green.name,
+                patch.mod_red.name,
+                patch.mod_yellow.name,
+                patch.mod_light.name,
+            ),
+            _knob_table(
+                patch.fx_green.name,
+                patch.fx_red.name,
+                patch.fx_yellow.name,
+                patch.fx_light.name,
+            ),
+            _knob_table(
+                patch.delay_green.name,
+                patch.delay_red.name,
+                patch.delay_yellow.name,
+                patch.delay_light.name,
+            ),
+            _knob_table(
+                f"{patch.reverb_green.name} [{patch.reverb_green_mode.name}]",
+                f"{patch.reverb_red.name} [{patch.reverb_red_mode.name}]",
+                f"{patch.reverb_yellow.name} [{patch.reverb_yellow_mode.name}]",
+                patch.reverb_light.name,
+            ),
+            _knob_table(
+                patch.delay2_green.name,
+                patch.delay2_red.name,
+                patch.delay2_yellow.name,
+            ),
+        ]
+
+        t = self._data_table(names, values)
+
+        t.show_lines = True
+        t.box = box.ROUNDED
+
+        return t
+
     def _data_table(
         self,
         names: Sequence[RenderableType],
-        values: Sequence[RenderableType],
+        values: Sequence[RenderableType | None],
     ) -> Table:
-        t = Table(show_header=False, box=None)
+        t = Table(show_header=False)
 
         match self.orientation:
             case Orientation.VERTICAL:
+                t.box = None
                 for name, value in zip(names, values, strict=True):
                     t.add_row(name, value)
             case Orientation.HORIZONTAL:
